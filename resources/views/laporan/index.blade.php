@@ -79,28 +79,46 @@
                                 @endif
                             </td>
                             <td class="py-4 px-2">
-                                <div class="flex flex-wrap items-center justify-center gap-2 min-w-[80px]">
-                                    <a href="{{ route('laporan.show', $laporan->id) }}"
-                                        class="inline-flex rounded-lg bg-blue-500/10 py-1.5 px-3 text-sm font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white transition">Detail</a>
-                                    <a href="{{ route('pdf.harian', $laporan->id) }}" target="_blank"
-                                        class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-3 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">PDF</a>
-                                    @if($laporan->status == "Menunggu")
-                                        <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST"
+                                <div class="flex flex-col items-center justify-center gap-1.5 lg:min-w-[120px]">
+                                    <!-- Aksi Umum -->
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <a href="{{ route('laporan.show', $laporan->id) }}"
+                                            class="inline-flex rounded-md bg-blue-500/10 py-1 px-2.5 text-xs font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white transition">Detail</a>
+
+                                        <a href="{{ route('pdf.harian', $laporan->id) }}" target="_blank"
+                                            class="inline-flex rounded-md bg-red-500/10 py-1 px-2.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">PDF</a>
+
+                                        <form action="{{ route('laporan.destroy', $laporan->id) }}" method="POST"
                                             class="inline block m-0 p-0"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menyetujui laporan ini?')">
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?')">
                                             @csrf
-                                            @method('PATCH')
+                                            @method('DELETE')
                                             <button type="submit"
-                                                class="inline-flex rounded-lg bg-green-500/10 py-1.5 px-3 text-sm font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Setujui</button>
+                                                class="inline-flex rounded-md bg-gray-500/10 py-1 px-2.5 text-xs font-medium text-gray-600 hover:bg-gray-500 hover:text-white dark:bg-gray-500/20 dark:text-gray-400 dark:hover:bg-gray-500 dark:hover:text-white transition">Hapus</button>
                                         </form>
-                                        <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST"
-                                            class="inline block m-0 p-0" onsubmit="return submitTolak(this)">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="catatan" class="catatan-input">
-                                            <button type="submit"
-                                                class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-3 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">Tolak</button>
-                                        </form>
+                                    </div>
+
+                                    <!-- Verifikasi -->
+                                    @if($laporan->status == "Menunggu")
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST"
+                                                class="inline block m-0 p-0"
+                                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui laporan ini?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="inline-flex rounded-md bg-green-500/10 py-1 px-2.5 text-xs font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Setujui</button>
+                                            </form>
+
+                                            <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST"
+                                                class="inline block m-0 p-0" onsubmit="return submitTolak(this)">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="catatan" class="catatan-input">
+                                                <button type="submit"
+                                                    class="inline-flex rounded-md bg-yellow-500/10 py-1 px-2.5 text-xs font-medium text-yellow-600 hover:bg-yellow-500 hover:text-white dark:bg-yellow-500/20 dark:text-yellow-400 dark:hover:bg-yellow-500 dark:hover:text-white transition">Tolak</button>
+                                            </form>
+                                        </div>
                                     @endif
                                 </div>
                             </td>
