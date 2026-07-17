@@ -77,9 +77,8 @@
                     <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700/50">
                         <tr class="text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
                             <th class="py-4 px-6 font-semibold whitespace-nowrap">No</th>
-                            <th class="py-4 px-6 font-semibold whitespace-nowrap">Nama</th>
+                            <th class="py-4 px-6 font-semibold whitespace-nowrap">Nama & Email</th>
                             <th class="py-4 px-6 font-semibold whitespace-nowrap">Jabatan</th>
-                            <th class="py-4 px-6 font-semibold whitespace-nowrap">Email</th>
                             <th class="py-4 px-6 font-semibold whitespace-nowrap">WhatsApp</th>
                             <th class="py-4 px-6 font-semibold whitespace-nowrap text-center">Status</th>
                             <th class="py-4 px-6 font-semibold whitespace-nowrap text-center">Aksi</th>
@@ -98,14 +97,14 @@
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold uppercase text-sm shadow-sm ring-2 ring-white dark:ring-slate-800">
-                                            {{ substr($item->nama ?? ($item->user->name ?? '?'), 0, 2) }}
+                                            {{ substr(trim($item->nama ?? ($item->user->name ?? '?')), 0, 2) }}
                                         </div>
                                         <div>
                                             <div class="font-bold text-slate-800 dark:text-white">
                                                 {{ $item->nama ?? ($item->user->name ?? 'Tanpa Nama') }}
                                             </div>
                                             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                                                {{ $item->email ?? '-' }}
+                                                {{ $item->email ? $item->email : 'Email tidak ditautkan' }}
                                             </div>
                                         </div>
                                     </div>
@@ -113,10 +112,6 @@
 
                                 <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">
                                     {{ $item->jabatan }}
-                                </td>
-
-                                <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
-                                    {{ $item->email }}
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
