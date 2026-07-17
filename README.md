@@ -1,58 +1,98 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚧 Bot Monitoring Pekerjaan & Laporan (PT Reno)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sebuah sistem aplikasi berbasis **Laravel 10** yang mengintegrasikan Web Dashboard (Admin & Karyawan) dengan **WhatsApp Bot Interaktif** menggunakan **API Fonnte**. Proyek ini dirancang untuk memudahkan para pekerja lapangan dalam membuat laporan harian & progres proyek secara langsung dari WhatsApp, yang kemudian tersinkronisasi otomatis ke sistem pusat.
 
-## About Laravel
+## ✨ Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1. Web Dashboard (Admin)
+- **Manajemen Karyawan:** Tambah, edit, dan atur status akses pekerja/karyawan.
+- **Monitoring Laporan:** Tinjau seluruh laporan harian yang masuk secara *real-time*.
+- **Verifikasi Laporan:** Admin dapat menyetujui, menolak, hingga menghapus laporan yang masuk.
+- **Export PDF:** Cetak *invoice* / rekapitulasi harian laporan pekerja secara rapi dalam bentuk dokumen PDF.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2. WhatsApp Bot Fonnte (Interactive Wizard)
+- **Menu Utama:** Navigasi interaktif berbasis angka (1 untuk *Lapor*, 2 untuk *Status*, 3 untuk *Bantuan*).
+- **Lapor Harian Terdorong (Stateful):** Alur laporan dengan menanyakan tiap poin-poin secara terurut:
+  - *Identitas Proyek & Lokasi*
+  - *Kegiatan & Sub Kegiatan*
+  - *Daftar Tenaga, Alat, & Material*
+  - *Catatan*
+  - **Unggah Foto Dokumentasi Laporan** (Khusus Pengguna Akun Fonnte Paket `Super/Advanced/Ultra`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 💻 Panduan Instalasi (Development Lokal)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Agar sistem dapat berjalan sempurna di laptop/komputer lain, ikuti panduan instalasi berikut dengan teliti.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Persyaratan Sistem
+- **PHP** ^8.1
+- **Composer**
+- Akun & Token **Fonnte API** (Aktifkan Webhook & Auto Read)
+- **Ngrok** (Untuk meneruskan lalu lintas jaringan *Localhost* ke IP Publik)
+- Database **MySQL** / MariaDB
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Langkah-langkah
 
-## Agentic Development
+1. **Kloning Proyek**
+   ```bash
+   git clone https://github.com/carenkaven/Bot-Monitoring-Pekerjaan.git
+   cd Bot-Monitoring-Pekerjaan
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+2. **Install Dependensi Laravel**
+   ```bash
+   composer install
+   ```
 
-```bash
-composer require laravel/boost --dev
+3. **Konfigurasi Lingkungan (.env)**
+   Duplikat file `.env.example` dan ubah nama menjadi `.env`.
+   ```bash
+   cp .env.example .env
+   ```
+   **PENTING!** Buka file `.env` dan tambahkan / ubah variabel berikut:
+   ```env
+   DB_DATABASE=nama_database_lokal_anda
+   DB_USERNAME=root
+   DB_PASSWORD=
 
-php artisan boost:install
-```
+   # Konfigurasi Token Wa-Bot
+   FONNTE_TOKEN=TOKEN_DARI_DASHBOARD_FONNTE_ANDA
+   ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+4. **Generate App Key & Konfigurasi Basis Data**
+   ```bash
+   php artisan key:generate
+   php artisan migrate
+   ```
 
-## Contributing
+5. **Jalankan Aplikasi Web**
+   ```bash
+   php artisan serve
+   ```
+   Aplikasi dashboard dapat diakses via `http://localhost:8000`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🔗 Panduan Menyambungkan Webhook Fonnte
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Fonnte membutuhkan tautan Webhook aktif yang mengarah ke endpoint `http://[URL-ANDA]/api/whatsapp/fonnte`. Karena Anda menjalankan *localhost*, Anda harus menggunakan Ngrok:
 
-## Security Vulnerabilities
+1. **Jalankan Ngrok** (di Window / Command prompt baru)
+   ```bash
+   ngrok http 8000
+   ```
+2. Anda akan mendapatkan Forwarding URL (contoh: `https://abcd-123.ngrok-free.dev`).
+3. Buka **Dashboard Fonnte** -> **Device**.
+4. Isi kolom **Webhook** dengan:
+   ```text
+   https://abcd-123.ngrok-free.dev/api/whatsapp/fonnte
+   ```
+5. *(Opsional)* Nyalakan perizinan penerimaan Media jika akun Fonnte Anda berada di tingkatan *Premium/Super*.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🔒 Default Kredensial Login
+Untuk mengakses dashboard Web Admin, Anda dapat merujuk pada kredensial default yang tertulis lengkap di file `CREDENTIALS.md` di proyek ini.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+> ©️ 2026 PT Reno Abirama Sakti - Dikembangkan untuk kebutuhan operasional monitoring lapangan.
