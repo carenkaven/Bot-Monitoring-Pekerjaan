@@ -1,0 +1,1 @@
+@extends('laporan.create')

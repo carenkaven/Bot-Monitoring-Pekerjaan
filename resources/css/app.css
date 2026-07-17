@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mencegah elemen x-show berkedip sebelum Alpine siap */
+[x-cloak] { display: none !important; }
+
+/* =====================================================
+ * TailAdmin Custom Color Classes
+ * Class-class ini dipakai di banyak view tapi tidak ada
+ * di config Tailwind standar. Didefinisikan di sini agar
+ * semua halaman ter-style dengan benar.
+ * ===================================================== */
+@layer utilities {
+  /* bg-boxdark = dark card background */
+  .bg-boxdark       { background-color: #24303f; }
+  /* bg-meta-4 = dark table head background */  
+  .bg-meta-4        { background-color: #313d4a; }
+
+  /* Border & stroke */
+  .border-stroke    { border-color: #e2e8f0; }
+  .border-strokedark { border-color: #2e3a47; }
+  .divide-stroke > :not([hidden]) ~ :not([hidden]) { border-color: #e2e8f0; }
+  .divide-strokedark > :not([hidden]) ~ :not([hidden]) { border-color: #2e3a47; }
+
+  /* Hover on dark table row */
+  .hover\:bg-meta-4\/50:hover { background-color: rgba(49, 61, 74, 0.5); }
+
+  /* text-title-md2 = heading size */
+  .text-title-md2   { font-size: 1.5rem; line-height: 2rem; }
+}
+
+/* px-7.5 = Tailwind doesn't have 7.5 by default */
+.px-7\.5 { padding-left: 1.875rem; padding-right: 1.875rem; }
+
+/* no-scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =====================================================
+ * Fallback dark-mode overrides:
+ * Mapping class light → dark supaya halaman tetap terbaca
+ * ===================================================== */
+@layer utilities {
+  /* teks */
+  .dark .text-black         { @apply text-slate-100; }
+  .dark .text-slate-900     { @apply text-slate-100; }
+  .dark .text-slate-800     { @apply text-slate-100; }
+  .dark .text-slate-700     { @apply text-slate-200; }
+  .dark .text-slate-600     { @apply text-slate-300; }
+  .dark .text-slate-500     { @apply text-slate-300; }
+  .dark .text-gray-900      { @apply text-slate-100; }
+  .dark .text-gray-800      { @apply text-slate-100; }
+  .dark .text-gray-700      { @apply text-slate-200; }
+  .dark .text-gray-600      { @apply text-slate-300; }
+  .dark .text-gray-500      { @apply text-slate-300; }
+  .dark .text-gray-400      { @apply text-slate-400; }
+
+  /* background */
+  .dark .bg-white           { @apply bg-slate-800; }
+  .dark .bg-slate-50        { @apply bg-slate-800; }
+  .dark .bg-slate-100       { @apply bg-slate-700; }
+  .dark .bg-slate-200       { @apply bg-slate-700; }
+  .dark .bg-gray-50         { @apply bg-slate-800; }
+  .dark .bg-gray-100        { @apply bg-slate-800; }
+  .dark .bg-gray-200        { @apply bg-slate-700; }
+
+  /* border */
+  .dark .border-gray-100    { @apply border-slate-700; }
+  .dark .border-gray-200    { @apply border-slate-700; }
+  .dark .border-gray-300    { @apply border-slate-600; }
+  .dark .border-slate-100   { @apply border-slate-700; }
+  .dark .border-slate-200   { @apply border-slate-700; }
+  .dark .border-slate-300   { @apply border-slate-600; }
+
+  /* hover/focus */
+  .dark .hover\:bg-gray-50:hover    { @apply bg-slate-700; }
+  .dark .hover\:bg-gray-100:hover   { @apply bg-slate-700; }
+  .dark .focus\:bg-gray-100:focus   { @apply bg-slate-700; }
+  .dark .hover\:bg-slate-50:hover   { @apply bg-slate-700; }
+  .dark .hover\:bg-slate-100:hover  { @apply bg-slate-700; }
+  .dark .hover\:text-gray-700:hover { @apply text-white; }
+  .dark .focus\:text-gray-700:focus { @apply text-white; }
+  .dark .hover\:border-gray-300:hover { @apply border-slate-500; }
+  .dark .focus\:border-gray-300:focus { @apply border-slate-500; }
+
+  /* Sidebar & layout */
+  .dark .bg-white.sidebar           { background-color: #1a2232 !important; }
+}
