@@ -4,7 +4,7 @@ import { deleteSession, getSession } from '../services/session.js';
 export const handleIncomingMessage = async (sock, m) => {
     try {
         const msg = m.messages[0];
-        if (!msg.message || msg.key.fromMe) return;
+        if (!msg.message) return; // Allow fromMe for self-testing
 
         const remoteJid = msg.key.remoteJid;
 

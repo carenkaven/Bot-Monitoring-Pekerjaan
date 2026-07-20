@@ -6,3 +6,6 @@
 - **Role:** admin
 
 > Source: `database/seeders/AdminSeeder.php`
+
+## API Tokens
+- **Fonnte Token:** `uBUXNmgqgm1xHr4EkdHc`

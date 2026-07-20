@@ -23,9 +23,7 @@ function clearSession() {
 // ─── Fungsi utama koneksi ─────────────────────────────────────────────────────
 export const connectToWhatsApp = async (isReconnect = false) => {
     if (!isReconnect) {
-        // Hapus sesi rusak setiap kali pertama kali start
-        clearSession();
-        console.log('🟡 Memulai sesi WhatsApp baru...');
+        console.log('🟡 Memulai sesi WhatsApp (memuat sesi lama jika ada)...');
     }
 
     if (!PHONE) {

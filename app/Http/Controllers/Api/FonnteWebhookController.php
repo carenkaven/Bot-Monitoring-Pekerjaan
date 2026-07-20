@@ -101,14 +101,30 @@ class FonnteWebhookController extends Controller
 
         // === Perintah: LAPOR ===
         if (Str::startsWith($upperMessage, 'LAPOR')) {
-            // Kalau cuman "LAPOR" tanpa isi, mulai interaktif
+            // Kalau cuman "LAPOR" tanpa isi, mulai interaktif 2 langkah
             if (trim($upperMessage) === 'LAPOR') {
                 Cache::put($stateKey, [
-                    'step' => 'nama_proyek',
+                    'step' => 'template',
                     'data' => []
                 ], now()->addMinutes(30));
 
-                $this->fonnte->sendMessage($sender, "📝 *Form Laporan Interaktif*\nKetik *BATAL* kapan saja untuk menghentikan pengisian.\n\nMemulai... Silakan masukkan *Nama Proyek*:");
+                $template = "📝 *Form Laporan Harian*\nKetik *BATAL* kapan saja untuk membatalkan.\n\n"
+                    . "Silakan *copy format* di bawah, isi datanya, lalu kirim kembali dalam *1 pesan*:\n\n"
+                    . "Nama Proyek: \n"
+                    . "Kegiatan: \n"
+                    . "Sub Kegiatan: \n"
+                    . "Pekerjaan: \n"
+                    . "Lokasi: \n"
+                    . "Kontraktor: \n"
+                    . "Konsultan: \n"
+                    . "Minggu Ke: \n"
+                    . "Tenaga: pekerja=0, tukang=0, mandor=0, pelaksana=0\n"
+                    . "Material: \n"
+                    . "Alat: \n"
+                    . "Catatan: \n\n"
+                    . "_Isi *-* untuk field yang kosong_";
+
+                $this->fonnte->sendMessage($sender, $template);
                 return response()->json(['status' => 'ok', 'action' => 'lapor_start']);
             }
             // Kalau LAPOR format panjang, pakai format lama
@@ -198,77 +214,80 @@ class FonnteWebhookController extends Controller
         if ($val === '-')
             $val = '';
 
-        if ($step === 'foto') {
-            $data['foto_url'] = $url;
-            $data['foto_keterangan'] = $val;
-        } else {
-            $data[$step] = $val;
+        switch ($step) {
+            case 'template':
+                // Step 2: Parse template isian user
+                $lines = preg_split('/\R+/', $val) ?: [];
+                foreach ($lines as $line) {
+                    if (!str_contains($line, ':'))
+                        continue;
+                    [$label, $value] = array_map('trim', explode(':', $line, 2));
+                    $field = $this->mapLabelToField($label);
+                    if ($field && $value !== '' && $value !== '-') {
+                        $data[$field] = $value;
+                    }
+                }
+
+                // Validasi minimal
+                $missing = [];
+                if (empty($data['kegiatan']))
+                    $missing[] = 'Kegiatan';
+                if (empty($data['pekerjaan']))
+                    $missing[] = 'Pekerjaan';
+                if (empty($data['lokasi']))
+                    $missing[] = 'Lokasi';
+
+                if (!empty($missing)) {
+                    $this->fonnte->sendMessage(
+                        $sender,
+                        "❌ Data belum lengkap. Field berikut wajib diisi:\n• " .
+                        implode("\n• ", $missing) .
+                        "\n\nSilakan kirim ulang format yang sudah dilengkapi."
+                    );
+                    return response()->json(['status' => 'error', 'reason' => 'incomplete']);
+                }
+
+                $state['step'] = 'foto';
+                $state['data'] = $data;
+                Cache::put($stateKey, $state, now()->addMinutes(30));
+
+                $this->fonnte->sendMessage($sender, "📷 Terakhir, silakan kirimkan *1 Foto Dokumentasi*.\nTuliskan keterangan foto pada pesan/caption jika perlu.\n\nKetik *-* jika belum ada foto atau untuk melewati.");
+                return response()->json(['status' => 'ok', 'step' => 'foto']);
+
+            case 'foto':
+                // Step 3: Menerima foto
+                $data['foto_url'] = $url;
+                $data['foto_keterangan'] = $val;
+                $data['tanggal'] = now()->toDateString();
+
+                Cache::forget($stateKey);
+                $karyawan = $this->findOrCreateKaryawan($sender, $senderName);
+
+                try {
+                    $laporan = $this->saveLaporan($karyawan, $data);
+                    $reply = "✅ *Laporan berhasil disimpan!*\n\n"
+                        . "📋 Proyek: {$data['nama_proyek']}\n"
+                        . "📅 Tanggal: {$data['tanggal']}\n"
+                        . "📍 Lokasi: {$data['lokasi']}\n"
+                        . "📌 Status: Menunggu verifikasi\n"
+                        . "🆔 ID: #{$laporan->id}\n\n"
+                        . "Terima kasih atas laporan Anda. 🙏\n\n"
+                        . "---\n"
+                        . $this->helpMessage();
+
+                    $this->fonnte->sendMessage($sender, $reply);
+                    return response()->json(['status' => 'ok', 'action' => 'laporan_saved']);
+                } catch (\Exception $e) {
+                    Log::error('Fonnte: gagal simpan laporan interaktif', ['sender' => $sender, 'error' => $e->getMessage()]);
+                    $this->fonnte->sendMessage($sender, "❌ Terjadi kesalahan saat menyimpan laporan.\n\nSilakan coba lagi atau hubungi admin.");
+                    return response()->json(['status' => 'error'], 500);
+                }
+
+            default:
+                Cache::forget($stateKey);
+                $this->fonnte->sendMessage($sender, "Sesi tidak valid. Silakan mulai ulang dengan mengetik *LAPOR*.\n\n" . $this->helpMessage());
+                return response()->json(['status' => 'error', 'reason' => 'invalid_step']);
         }
-
-        $nextStep = match ($step) {
-            'nama_proyek' => 'kegiatan',
-            'kegiatan' => 'sub_kegiatan',
-            'sub_kegiatan' => 'pekerjaan',
-            'pekerjaan' => 'lokasi',
-            'lokasi' => 'kontraktor',
-            'kontraktor' => 'konsultan',
-            'konsultan' => 'minggu_ke',
-            'minggu_ke' => 'tenaga',
-            'tenaga' => 'material',
-            'material' => 'alat',
-            'alat' => 'catatan',
-            'catatan' => 'foto',
-            'foto' => 'done',
-            default => 'done',
-        };
-
-        if ($nextStep === 'done') {
-            Cache::forget($stateKey);
-            $karyawan = $this->findOrCreateKaryawan($sender, $senderName);
-            $data['tanggal'] = now()->toDateString();
-
-            try {
-                $laporan = $this->saveLaporan($karyawan, $data);
-                $reply = "✅ *Laporan berhasil disimpan!*\n\n"
-                    . "📋 Proyek: {$data['nama_proyek']}\n"
-                    . "📅 Tanggal: {$data['tanggal']}\n"
-                    . "📍 Lokasi: {$data['lokasi']}\n"
-                    . "📌 Status: Menunggu verifikasi\n"
-                    . "🆔 ID: #{$laporan->id}\n\n"
-                    . "Terima kasih atas laporan Anda. 🙏\n\n"
-                    . "---\n"
-                    . $this->helpMessage();
-
-                $this->fonnte->sendMessage($sender, $reply);
-                return response()->json(['status' => 'ok', 'action' => 'laporan_saved']);
-            } catch (\Exception $e) {
-                Log::error('Fonnte: gagal simpan laporan interaktif', ['sender' => $sender, 'error' => $e->getMessage()]);
-                $this->fonnte->sendMessage($sender, "❌ Terjadi kesalahan saat menyimpan laporan.\n\nSilakan coba lagi atau hubungi admin.");
-                return response()->json(['status' => 'error'], 500);
-            }
-        }
-
-        $state['step'] = $nextStep;
-        $state['data'] = $data;
-        Cache::put($stateKey, $state, now()->addMinutes(30));
-
-        $prompts = [
-            'kegiatan' => "Sip! Sekarang masukkan *Kegiatan* yang dikerjakan:",
-            'sub_kegiatan' => "Lanjut, apa *Sub Kegiatan*-nya?\nKetik *-* jika tidak ada/kosong:",
-            'pekerjaan' => "Lanjut, masukkan detail *Pekerjaan*:",
-            'lokasi' => "Di mana *Lokasi* pekerjaannya?",
-            'kontraktor' => "Siapa *Kontraktor* pelaksana?\nKetik *-* jika tidak ada/kosong:",
-            'konsultan' => "Siapa *Konsultan* pengawas?\nKetik *-* jika tidak ada/kosong:",
-            'minggu_ke' => "Pekerjaan *Minggu Ke* berapa? (Contoh: 1)\nKetik *-* jika tidak ada/kosong:",
-            'tenaga' => "Berapa *Tenaga Kerja* yang turun? (Contoh: pekerja=8, tukang=2)\nKetik *-* jika tidak ada/kosong:",
-            'material' => "Apa saja *Material* yang dipakai? (Contoh: Semen|20|sak)\nKetik *-* jika tidak ada/kosong:",
-            'alat' => "Apa *Alat* yang digunakan? (Contoh: Vibrator|2)\nKetik *-* jika tidak ada/kosong:",
-            'catatan' => "Tuliskan *Catatan* (cuaca/kendala di lapangan).\nKetik *-* jika tidak ada/kosong:",
-            'foto' => "Terakhir, silakan kirimkan *1 Foto Dokumentasi*.\nTuliskan keterangan foto pada pesan/caption jika perlu.\n\nKetik *-* jika belum ada foto atau untuk melewati:",
-        ];
-
-        $this->fonnte->sendMessage($sender, $prompts[$nextStep]);
-        return response()->json(['status' => 'ok', 'step' => $nextStep]);
     }
 
     /**
