@@ -24,8 +24,15 @@ class Laporan extends Model
         'pic',
         'minggu_ke',
         'tanggal',
+        'progress',
+        'jam_mulai',
+        'jam_selesai',
         'status',
         'catatan',
+        'cuaca',
+        'kendala',
+        'rencana_besok',
+        'keterangan',
     ];
 
     protected $casts = [
