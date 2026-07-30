@@ -42,7 +42,7 @@
                         'Sub Kegiatan' => $laporan->sub_kegiatan,
                         'Pekerjaan' => $laporan->pekerjaan,
                         'Lokasi' => $laporan->lokasi,
-                        'Kontraktor' => $laporan->kontraktor,
+                        'Kontraktor / Kontraktor Pelaksana' => $laporan->kontraktor,
                         'Konsultan' => $laporan->konsultan,
                         'PIC' => $laporan->pic,
                         'Minggu Ke' => $laporan->minggu_ke,

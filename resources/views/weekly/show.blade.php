@@ -63,7 +63,7 @@
                     <h4 class="mb-4 text-title-sm font-semibold text-black dark:text-white">Detail Kegiatan</h4>
                     <div class="flex flex-col gap-3">
                         <div class="flex justify-between border-b border-stroke pb-3 dark:border-strokedark">
-                            <span class="text-sm text-slate-500 dark:text-slate-400">Kontraktor</span>
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Kontraktor / Kontraktor Pelaksana</span>
                             <span
                                 class="text-sm font-medium text-black dark:text-white text-right">{{ $summary['kontraktor'] ?: '-' }}</span>
                         </div>

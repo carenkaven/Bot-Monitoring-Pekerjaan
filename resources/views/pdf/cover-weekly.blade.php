@@ -68,7 +68,7 @@ s/d
 
 <div class="boxwrap">
 <div class="box">
-<h3>KONTRAKTOR PELAKSANA</h3>
+<h3>KONTRAKTOR / KONTRAKTOR PELAKSANA</h3>
 <div class="company">{{ strtoupper($summary['kontraktor']) }}</div>
 <div class="addr">{{ $summary['alamat_kontraktor'] ?? '-' }}</div>
 </div>

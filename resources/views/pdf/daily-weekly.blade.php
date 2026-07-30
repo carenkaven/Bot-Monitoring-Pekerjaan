@@ -533,7 +533,7 @@ $classCuaca = $kelasCuaca[$cuaca] ?? '';
 
 <!-- ================= TANDA TANGAN ================= -->
 <!-- FIX: di PDF, baris "Malang, tanggal" dan "Dibuat oleh :" sejajar di atas
-     kolom Kontraktor Pelaksana saja (center), bukan rata-kanan yang melebar
+     kolom Kontraktor / Kontraktor Pelaksana saja (center), bukan rata-kanan yang melebar
      ke seluruh lebar tabel. -->
 
 <table class="stack">
@@ -559,7 +559,7 @@ $classCuaca = $kelasCuaca[$cuaca] ?? '';
 <tr>
 <td class="no-border center">Diperiksa oleh :<br>Konsultan Pengawas</td>
 <td class="no-border"></td>
-<td class="no-border center">Dibuat oleh :<br>Kontraktor Pelaksana</td>
+<td class="no-border center">Dibuat oleh :<br>Kontraktor / Kontraktor Pelaksana</td>
 </tr>
 
 <tr>

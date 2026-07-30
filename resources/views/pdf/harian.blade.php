@@ -149,7 +149,7 @@ DOKUMENTASI PEKERJAAN HARIAN
 </tr>
 
 <tr>
-<td>Kontraktor</td>
+<td>Kontraktor / Kontraktor Pelaksana</td>
 <td>:</td>
 <td>{{ $laporan->kontraktor }}</td>
 </tr>
@@ -172,7 +172,7 @@ DOKUMENTASI PEKERJAAN HARIAN
 
 <td width="25%" class="center middle">
 
-<b>KONTRAKTOR PELAKSANA</b>
+<b>KONTRAKTOR / KONTRAKTOR PELAKSANA</b>
 
 <br><br>
 
