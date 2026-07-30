@@ -90,7 +90,7 @@
 
                                         <form action="{{ route('laporan.destroy', $laporan->id) }}" method="POST"
                                             class="inline block m-0 p-0"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?')">
+                                            onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menghapus laporan ini secara permanen?', this)">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -103,7 +103,7 @@
                                         <div class="flex items-center justify-center gap-1.5">
                                             <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST"
                                                 class="inline block m-0 p-0"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui laporan ini?')">
+                                                onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menyetujui laporan ini?', this)">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit"
@@ -111,7 +111,7 @@
                                             </form>
 
                                             <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST"
-                                                class="inline block m-0 p-0" onsubmit="return submitTolak(this)">
+                                                class="inline block m-0 p-0" onsubmit="submitTolak(event, this)">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="catatan" class="catatan-input">
@@ -143,15 +143,31 @@
 
 @push('scripts')
     <script>
-        function submitTolak(form) {
-            const alasan = prompt('Masukkan alasan penolakan:');
-            if (alasan && alasan.trim() !== '') {
-                form.querySelector('.catatan-input').value = alasan;
-                return true;
-            } else if (alasan !== null) {
-                alert('Alasan penolakan wajib diisi!');
-            }
-            return false;
+        function submitTolak(event, form) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Tolak Laporan',
+                input: 'textarea',
+                inputLabel: 'Masukkan alasan penolakan:',
+                inputPlaceholder: 'Ketik alasan di sini...',
+                showCancelButton: true,
+                confirmButtonText: 'Tolak Laporan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                preConfirm: (alasan) => {
+                    if (!alasan || alasan.trim() === '') {
+                        Swal.showValidationMessage('Alasan penolakan wajib diisi!');
+                        return false;
+                    }
+                    return alasan;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.querySelector('.catatan-input').value = result.value;
+                    form.submit();
+                }
+            });
         }
     </script>
 @endpush

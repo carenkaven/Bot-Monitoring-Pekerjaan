@@ -36,14 +36,19 @@ class FonnteWebhookController extends Controller
         $mediaUrl = trim($request->input('url', ''));
         $name = $request->input('name', '');
 
+        if ($mediaUrl !== '') {
+            $mediaUrl = $this->fonnte->downloadMedia($mediaUrl);
+        }
+
         // Abaikan pesan dari grup
         if (Str::contains($sender, '-') || Str::contains($sender, '@g.us')) {
             return response()->json(['status' => 'ignored', 'reason' => 'group']);
         }
 
-        if ($message === '') {
+        if ($message === '' && $mediaUrl === '') {
             return response()->json(['status' => 'ignored', 'reason' => 'empty']);
         }
+
 
         Log::info('Fonnte webhook received', [
             'sender' => $sender,

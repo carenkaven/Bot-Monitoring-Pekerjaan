@@ -56,9 +56,8 @@ table{
 }
 
 .foto{
-    width:100%;
-    height:260px;
-    object-fit:cover;
+    max-width:100%;
+    max-height:260px;
 }
 
 .foto-box{

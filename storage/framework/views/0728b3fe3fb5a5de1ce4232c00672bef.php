@@ -182,7 +182,7 @@
                                             </form>
 
                                             <form action="<?php echo e(route('karyawan.reject', $item->id)); ?>" method="POST" class="inline"
-                                                onsubmit="return confirm('Tolak pendaftaran karyawan ini?')">
+                                                onsubmit="confirmFormSubmit(event, 'Tolak pendaftaran karyawan ini?', this)">
 
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('PATCH'); ?>
@@ -224,7 +224,7 @@
                                         </a>
 
                                         <form action="<?php echo e(route('karyawan.destroy', $item->id)); ?>" method="POST" class="inline"
-                                            onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                            onsubmit="confirmFormSubmit(event, 'Yakin ingin menghapus data ini?', this)">
 
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('DELETE'); ?>

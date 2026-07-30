@@ -96,14 +96,14 @@
                                         class="inline-flex rounded-lg bg-blue-500/10 py-1.5 px-3 text-sm font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white transition">Detail</a>
                                     <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST"
                                         class="inline block m-0 p-0"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menyetujui laporan ini?')">
+                                        onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menyetujui laporan ini?', this)">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit"
                                             class="inline-flex rounded-lg bg-green-500/10 py-1.5 px-3 text-sm font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Setujui</button>
                                     </form>
                                     <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST"
-                                        class="inline block m-0 p-0" onsubmit="return submitTolak(this)">
+                                        class="inline block m-0 p-0" onsubmit="submitTolak(event, this)">
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="catatan" class="catatan-input">
@@ -133,15 +133,31 @@
 
 @push('scripts')
     <script>
-        function submitTolak(form) {
-            const alasan = prompt('Masukkan alasan penolakan:');
-            if (alasan && alasan.trim() !== '') {
-                form.querySelector('.catatan-input').value = alasan;
-                return true;
-            } else if (alasan !== null) {
-                alert('Alasan penolakan wajib diisi!');
-            }
-            return false;
+        function submitTolak(event, form) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Tolak Laporan',
+                input: 'textarea',
+                inputLabel: 'Masukkan alasan penolakan:',
+                inputPlaceholder: 'Ketik alasan di sini...',
+                showCancelButton: true,
+                confirmButtonText: 'Tolak Laporan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                preConfirm: (alasan) => {
+                    if (!alasan || alasan.trim() === '') {
+                        Swal.showValidationMessage('Alasan penolakan wajib diisi!');
+                        return false;
+                    }
+                    return alasan;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.querySelector('.catatan-input').value = result.value;
+                    form.submit();
+                }
+            });
         }
     </script>
 @endpush

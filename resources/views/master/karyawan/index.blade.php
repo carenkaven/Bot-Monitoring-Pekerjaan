@@ -177,7 +177,7 @@
                                             </form>
 
                                             <form action="{{ route('karyawan.reject', $item->id) }}" method="POST" class="inline"
-                                                onsubmit="return confirm('Tolak pendaftaran karyawan ini?')">
+                                                onsubmit="confirmFormSubmit(event, 'Tolak pendaftaran karyawan ini?', this)">
 
                                                 @csrf
                                                 @method('PATCH')
@@ -219,7 +219,7 @@
                                         </a>
 
                                         <form action="{{ route('karyawan.destroy', $item->id) }}" method="POST" class="inline"
-                                            onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                            onsubmit="confirmFormSubmit(event, 'Yakin ingin menghapus data ini?', this)">
 
                                             @csrf
                                             @method('DELETE')
