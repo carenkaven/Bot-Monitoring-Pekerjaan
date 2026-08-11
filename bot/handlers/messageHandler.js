@@ -1,5 +1,6 @@
 import { handleReportWizard } from './reportHandler.js';
-import { deleteSession, getSession } from '../services/session.js';
+import { deleteSession, getSession, clearSessionTimeout } from '../services/session.js';
+import { formatWIB } from '../utils/timezone.js';
 
 export const handleIncomingMessage = async (sock, m) => {
     try {
@@ -30,8 +31,8 @@ export const handleIncomingMessage = async (sock, m) => {
         const upperText = cleanText.toUpperCase();
         const isInSession = !!getSession(phone);
 
-        // Batal - cancel session aktif
-        if (upperText === 'BATAL') {
+        // Fallback global cancel
+        if (upperText === 'BATAL' || upperText === 'CANCEL') {
             if (isInSession) {
                 deleteSession(phone);
                 await sock.sendMessage(remoteJid, { text: "Proses pelaporan telah dibatalkan." });
@@ -39,29 +40,43 @@ export const handleIncomingMessage = async (sock, m) => {
             return;
         }
 
-        // Bantuan
-        if (upperText === 'BANTUAN') {
+        // Jika dalam session laporan, lewati menu utama
+        if (isInSession) {
+            clearSessionTimeout(phone);
+            console.log(`[RESPONSE] ${phone} responded at ${formatWIB()}`);
+            await handleReportWizard(sock, remoteJid, phone, cleanText, msg);
+            return;
+        }
+
+        // EXACT MATCH untuk menu utama
+        if (cleanText === '1' || upperText === 'LAPOR') {
+            await handleReportWizard(sock, remoteJid, phone, cleanText, msg);
+            return;
+        }
+
+        if (cleanText === '2' || upperText === 'STATUS') {
+            await sock.sendMessage(remoteJid, { text: "Fitur cek riwayat/status laporan segera hadir." });
+            return;
+        }
+
+        if (cleanText === '3' || upperText === 'BANTUAN') {
             await sock.sendMessage(remoteJid, {
-                text: "Perintah yang tersedia:\n1. LAPOR : Memulai pelaporan.\n2. STATUS : Status laporan.\n3. BANTUAN : Bantuan perintah.\n4. BATAL : Membatalkan proses."
+                text: "📋 *BANTUAN*\n\nGunakan pilihan angka untuk navigasi:\n1. Buat Laporan Harian : Memulai pelaporan.\n2. Riwayat Laporan : Cek status.\n3. Bantuan : Menampilkan panduan ini.\n\nKetik 'BATAL' kapan saja jika ingin membatalkan proses laporan berjalan."
             });
             return;
         }
 
-        if (upperText === 'STATUS') {
-            await sock.sendMessage(remoteJid, { text: "Fitur cek status laporan segera hadir." });
+        if (['TEST', 'PING', 'HALO', 'HAI', 'P', 'MENU'].includes(upperText)) {
+            await sock.sendMessage(remoteJid, { 
+                text: "Halo! 🤖 Bot WhatsApp Monitoring PKN aktif.\n\n📋 *MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan." 
+            });
             return;
         }
 
-        if (['TEST', 'PING', 'HALO', 'HAI', 'P'].includes(upperText)) {
-            await sock.sendMessage(remoteJid, { text: "Halo! Bot WhatsApp Monitoring PKN aktif. 🤖✅" });
-            return;
-        }
-
-        // Masuk ke wizard pelaporan
-        if (upperText === 'LAPOR' || isInSession) {
-            await handleReportWizard(sock, remoteJid, phone, cleanText, msg);
-            return;
-        }
+        // Tampilkan Menu Utama jika tidak dikenali
+        await sock.sendMessage(remoteJid, { 
+            text: "📋 *MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan." 
+        });
 
     } catch (error) {
         console.error("Message Handler Error: ", error);

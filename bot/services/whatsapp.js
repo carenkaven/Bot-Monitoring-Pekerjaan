@@ -4,9 +4,9 @@ import Pino from 'pino';
 import fs from 'fs';
 import path from 'path';
 
-const AUTH_DIR   = path.resolve('./auth_info_baileys');
-const QR_PATH    = path.resolve('./storage/app/whatsapp-qr.txt');
-const PHONE      = (process.env.WA_PHONE_NUMBER || '').replace(/\D/g, '');
+const AUTH_DIR = path.resolve('./auth_info_baileys');
+const QR_PATH = path.resolve('./storage/app/whatsapp-qr.txt');
+const PHONE = (process.env.WA_PHONE_NUMBER || '').replace(/\D/g, '');
 
 const logger = Pino({ level: 'silent' });
 

@@ -52,6 +52,10 @@
             <main>
                 <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
 
+                    <div class="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-gray-800 dark:text-blue-400" role="alert">
+                        <span class="font-medium">Pengumuman Penting:</span> Agar notifikasi dari Bot WhatsApp dapat diterima dengan baik dan tautan dapat diklik, mohon kepada seluruh pegawai untuk <strong>menyimpan (save) kontak nomor Bot WhatsApp</strong> ini di HP Anda (misal: "Bot Monitoring Pekerjaan"). Hal ini juga membantu mencegah nomor Bot terblokir oleh sistem antispam WhatsApp.
+                    </div>
+
                     @isset($header)
                         <div class="mb-6">
                             {{ $header }}

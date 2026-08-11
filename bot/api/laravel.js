@@ -35,7 +35,7 @@ export const saveLaporan = async (laporanData, imageBuffer, mimetype) => {
                 form.append(key, laporanData[key]);
             }
         });
-        
+
         if (imageBuffer) {
             const ext = mimetype.split('/')[1] || 'img';
             form.append('foto', imageBuffer, { filename: `foto_${Date.now()}.${ext}` });

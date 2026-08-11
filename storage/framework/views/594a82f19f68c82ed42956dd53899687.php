@@ -67,25 +67,89 @@
         </li>
 
 
-        <!-- Notification Menu Area -->
-        <li class="relative" x-data="{ dropdownOpen: false, notifying: true }" @click.outside="dropdownOpen = false">
-          <button
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
-            @click.prevent="dropdownOpen = ! dropdownOpen; notifying = false">
-            <span :class="!notifying ? 'hidden' : 'inline'"
-              class="absolute -top-0.5 right-0 z-10 h-2.5 w-2.5 rounded-full z-1 bg-red-500">
-              <span
-                class="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-            </span>
+     <!-- Notification Menu Area -->
+<li class="relative"
+    x-data="{ dropdownOpen: false }"
+    @click.outside="dropdownOpen = false">
 
-            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M11.9991 3.25C8.01693 3.25 4.74915 6.51778 4.74915 10.5V13.8826C4.74915 14.7335 4.41144 15.5496 3.81057 16.1505L3.63002 16.331C3.1257 16.8353 3.48316 17.6973 4.19665 17.6973H8.38466C8.80373 19.3496 10.2644 20.6033 11.9991 20.6033C13.7339 20.6033 15.1945 19.3496 15.6136 17.6973H19.8016C20.5151 17.6973 20.8726 16.8353 20.3683 16.331L20.1877 16.1505C19.5868 15.5496 19.2491 14.7335 19.2491 13.8826V10.5C19.2491 6.51778 15.9813 3.25 11.9991 3.25ZM9.90793 17.6973C10.2798 18.5132 11.0772 19.1033 11.9991 19.1033C12.921 19.1033 13.7184 18.5132 14.0903 17.6973H9.90793ZM17.7491 13.8826V10.5C17.7491 7.34614 15.1531 4.75 11.9991 4.75C8.84523 4.75 6.24915 7.34614 6.24915 10.5V13.8826C6.24915 15.1311 5.75317 16.3285 4.8711 17.2106L6.24915 17.6973H17.7491L19.1272 17.2106C18.2451 16.3285 17.7491 15.1311 17.7491 13.8826Z"
-                fill="" />
-            </svg>
-          </button>
-        </li>
-      </ul>
+    <button
+        @click.prevent="dropdownOpen = !dropdownOpen"
+        class="relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800">
+
+        <?php if($notifCount > 0): ?>
+            <span
+                class="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                <?php echo e($notifCount); ?>
+
+            </span>
+        <?php endif; ?>
+
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path
+                d="M11.9991 3.25C8.01693 3.25 4.74915 6.51778 4.74915 10.5V13.8826C4.74915 14.7335 4.41144 15.5496 3.81057 16.1505L3.63002 16.331C3.1257 16.8353 3.48316 17.6973 4.19665 17.6973H8.38466C8.80373 19.3496 10.2644 20.6033 11.9991 20.6033C13.7339 20.6033 15.1945 19.3496 15.6136 17.6973H19.8016C20.5151 17.6973 20.8726 16.8353 20.3683 16.331L20.1877 16.1505C19.5868 15.5496 19.2491 14.7335 19.2491 13.8826V10.5C19.2491 6.51778 15.9813 3.25 11.9991 3.25Z"/>
+        </svg>
+    </button>
+
+    <!-- Dropdown -->
+    <div
+        x-show="dropdownOpen"
+        x-transition
+        x-cloak
+        class="absolute right-0 mt-3 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
+
+        <div class="border-b px-4 py-3">
+            <h3 class="font-semibold text-gray-800 dark:text-white">
+                Notifikasi
+            </h3>
+        </div>
+
+        <div class="max-h-96 overflow-y-auto">
+
+            <?php $__empty_1 = true; $__currentLoopData = $notifLaporans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $laporan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+
+                <a href="<?php echo e(route('laporan.show', $laporan->id)); ?>"
+                   class="block border-b px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+
+                    <div class="font-semibold text-gray-800 dark:text-white">
+                        📋 Laporan Baru
+                    </div>
+
+                    <div class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                        <?php echo e($laporan->karyawan->nama); ?>
+
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        <?php echo e($laporan->pekerjaan); ?>
+
+                    </div>
+
+                    <div class="mt-1 text-xs text-blue-600">
+                        <?php echo e(\Carbon\Carbon::parse($laporan->tanggal)->format('d M Y')); ?>
+
+                    </div>
+
+                </a>
+
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+
+                <div class="p-6 text-center text-gray-500">
+                    Tidak ada laporan yang menunggu verifikasi.
+                </div>
+
+            <?php endif; ?>
+
+        </div>
+
+        <?php if($notifCount > 0): ?>
+            <div class="border-t bg-gray-50 px-4 py-2 text-center text-sm dark:bg-gray-800">
+                Total <?php echo e($notifCount); ?> laporan menunggu verifikasi
+            </div>
+        <?php endif; ?>
+
+    </div>
+
+</li>
 
       <!-- User Area -->
       <div class="relative" x-data="{ dropdownOpen: false }" @click.outside="dropdownOpen = false">

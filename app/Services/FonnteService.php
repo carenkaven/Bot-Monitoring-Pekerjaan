@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Jobs\SendFonnteMessageJob;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -20,7 +22,7 @@ class FonnteService
      */
     public function sendMessage(string $target, string $message): array
     {
-        return $this->request('/send', [
+        return $this->queueRequest('/send', [
             'target' => $target,
             'message' => $message,
         ]);
@@ -31,11 +33,51 @@ class FonnteService
      */
     public function sendImage(string $target, string $imageUrl, string $caption = ''): array
     {
-        return $this->request('/send', [
+        return $this->queueRequest('/send', [
             'target' => $target,
             'message' => $caption,
             'url' => $imageUrl,
         ]);
+    }
+
+    /**
+     * Tambahkan request ke antrean dengan delay dan timestamp dinamis.
+     */
+    protected function queueRequest(string $endpoint, array $data): array
+    {
+        $now = now()->timestamp;
+        
+        // Ambil jadwal terakhir, default 10 detik lalu agar pesan pertama langsung dikirim
+        $lastScheduled = Cache::get('fonnte_last_scheduled', $now - 10);
+        
+        // Pesan berikutnya minimal berjarak 10 detik dari jadwal sebelumnya, atau dari sekarang
+        $nextSchedule = max($now, $lastScheduled + 10);
+        $delaySeconds = max(0, $nextSchedule - $now);
+
+        // Update jadwal terakhir ke cache
+        Cache::put('fonnte_last_scheduled', $nextSchedule, now()->addMinutes(10));
+
+        // Tambahkan timestamp dinamis di akhir pesan agar WA membaca pesan ini unik
+        $sendTime = now()->addSeconds($delaySeconds)->timezone('Asia/Jakarta');
+        $dynamicText = "\n\n_Notifikasi otomatis: " . $sendTime->format('d M Y H:i:s') . " WIB_";
+        
+        if (isset($data['message'])) {
+            $data['message'] .= $dynamicText;
+        } else {
+            $data['message'] = $dynamicText;
+        }
+
+        dispatch(new SendFonnteMessageJob($endpoint, $data))->delay($delaySeconds);
+
+        return ['status' => true, 'queued' => true, 'delay' => $delaySeconds];
+    }
+
+    /**
+     * Kirim request ke Fonnte API secara langsung (dipanggil oleh Job).
+     */
+    public function sendRawRequest(string $endpoint, array $data): array
+    {
+        return $this->request($endpoint, $data);
     }
 
     /**
