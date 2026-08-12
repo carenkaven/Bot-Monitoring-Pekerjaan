@@ -116,11 +116,16 @@
                                         class="inline-flex rounded-lg bg-blue-500/10 py-1.5 px-3 text-sm font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white transition">
                                         Detail
                                     </a>
-                                    <a target="_blank"
-                                        href="{{ route('pdf.weekly', ['minggu' => $row['minggu_ke'], 'proyek' => $row['nama_proyek']]) }}"
-                                        class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-3 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">
-                                        PDF
-                                    </a>
+                                    <button type="button"
+                                        onclick="pilihFormatLaporan('Laporan Mingguan Lama', '{{ route('pdf.weekly', ['minggu' => $row['minggu_ke'], 'proyek' => $row['nama_proyek']]) }}', '{{ route('excel.weekly', ['minggu' => $row['minggu_ke'], 'proyek' => $row['nama_proyek']]) }}')"
+                                        class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-3 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white transition">
+                                        Laporan Mingguan Lama
+                                    </button>
+                                    <button type="button"
+                                        onclick="pilihFormatLaporan('Laporan Mingguan Baru', '{{ route('pdf.weekly.physical', ['minggu' => $row['minggu_ke'], 'proyek' => $row['nama_proyek']]) }}', '{{ route('excel.weekly.physical', ['minggu' => $row['minggu_ke'], 'proyek' => $row['nama_proyek']]) }}')"
+                                        class="inline-flex rounded-lg bg-orange-500/10 py-1.5 px-3 text-sm font-medium text-orange-600 hover:bg-orange-500 hover:text-white transition">
+                                        Laporan Mingguan Baru
+                                    </button>
                                 </div>
                             </td>
                         </tr>

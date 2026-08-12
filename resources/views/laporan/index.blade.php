@@ -48,7 +48,8 @@
                         <th class="min-w-[150px] py-4 px-2 font-medium">Proyek</th>
                         <th class="min-w-[200px] py-4 px-2 font-medium">Lokasi</th>
                         <th class="py-4 px-2 font-medium text-center">Status</th>
-                        <th class="py-4 px-2 font-medium text-center lg:min-w-[180px]">Aksi</th>
+                        <th class="py-4 px-2 font-medium text-center lg:min-w-[250px]">Laporan</th>
+                        <th class="py-4 px-2 font-medium text-center lg:min-w-[150px]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stroke dark:divide-strokedark">
@@ -78,45 +79,46 @@
                                         class="inline-flex rounded-full bg-red-100 py-1 px-3 text-xs font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">Ditolak</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-2">
-                                <div class="flex flex-col items-center justify-center gap-1.5 lg:min-w-[120px]">
-                                    <!-- Aksi Umum -->
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <a href="{{ route('laporan.show', $laporan->id) }}"
-                                            class="inline-flex rounded-md bg-blue-500/10 py-1 px-2.5 text-xs font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white transition">Detail</a>
-
-                                        <a href="{{ route('pdf.harian', $laporan->id) }}" target="_blank"
-                                            class="inline-flex rounded-md bg-red-500/10 py-1 px-2.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">PDF</a>
-
-                                        <form action="{{ route('laporan.destroy', $laporan->id) }}" method="POST"
-                                            class="inline block m-0 p-0"
-                                            onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menghapus laporan ini secara permanen?', this)">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex rounded-md bg-gray-500/10 py-1 px-2.5 text-xs font-medium text-gray-600 hover:bg-gray-500 hover:text-white dark:bg-gray-500/20 dark:text-gray-400 dark:hover:bg-gray-500 dark:hover:text-white transition">Hapus</button>
-                                        </form>
-                                    </div>
+                            <td class="py-4 px-2 text-center">
+                                <div class="flex flex-wrap items-center justify-center gap-2">
+                                    <a href="{{ route('laporan.show', $laporan->id) }}"
+                                        class="inline-flex min-w-[78px] items-center justify-center rounded-lg bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition">Detail</a>
+                                    <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '{{ route('pdf.harian', $laporan->id) }}', '{{ route('excel.harian', $laporan->id) }}')"
+                                        class="inline-flex min-w-[58px] items-center justify-center rounded-lg bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-500 hover:text-white transition">Lama</button>
+                                    <button type="button" onclick="pilihFormatLaporan('Laporan Harian Baru', '{{ route('pdf.harian.baru', $laporan->id) }}', '{{ route('excel.harian.baru', $laporan->id) }}')"
+                                        class="inline-flex min-w-[58px] items-center justify-center rounded-lg bg-orange-500/10 px-3 py-2 text-xs font-semibold text-orange-600 hover:bg-orange-500 hover:text-white transition">Baru</button>
+                                </div>
+                            </td>
+                            <td class="py-4 px-2 text-center">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <form action="{{ route('laporan.destroy', $laporan->id) }}" method="POST" class="m-0 inline"
+                                        onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menghapus laporan ini secara permanen?', this)">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" title="Hapus laporan" aria-label="Hapus laporan"
+                                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gray-500/10 text-gray-600 hover:bg-gray-500 hover:text-white transition">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </button>
+                                    </form>
 
                                     <!-- Verifikasi -->
                                     @if($laporan->status == "Menunggu")
-                                        <div class="flex items-center justify-center gap-1.5">
-                                            <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST"
-                                                class="inline block m-0 p-0"
+                                        <div class="flex items-center justify-center gap-2">
+                                            <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST" class="m-0 inline"
                                                 onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menyetujui laporan ini?', this)">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit"
-                                                    class="inline-flex rounded-md bg-green-500/10 py-1 px-2.5 text-xs font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Setujui</button>
+                                                <button type="submit" title="Setujui laporan" aria-label="Setujui laporan" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white transition">
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                                </button>
                                             </form>
-
-                                            <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST"
-                                                class="inline block m-0 p-0" onsubmit="submitTolak(event, this)">
+                                            <form action="{{ route('verifikasi.tolak', $laporan->id) }}" method="POST" class="m-0 inline" onsubmit="submitTolak(event, this)">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="catatan" class="catatan-input">
-                                                <button type="submit"
-                                                    class="inline-flex rounded-md bg-yellow-500/10 py-1 px-2.5 text-xs font-medium text-yellow-600 hover:bg-yellow-500 hover:text-white dark:bg-yellow-500/20 dark:text-yellow-400 dark:hover:bg-yellow-500 dark:hover:text-white transition">Tolak</button>
+                                                <button type="submit" title="Tolak laporan" aria-label="Tolak laporan" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500 hover:text-white transition">
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+                                                </button>
                                             </form>
                                         </div>
                                     @endif
@@ -125,7 +127,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-10 text-gray-500 dark:text-gray-400">Belum ada laporan yang
+                            <td colspan="7" class="text-center py-10 text-gray-500 dark:text-gray-400">Belum ada laporan yang
                                 masuk.</td>
                         </tr>
                     @endforelse

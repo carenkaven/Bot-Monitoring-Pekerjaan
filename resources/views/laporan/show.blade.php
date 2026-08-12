@@ -14,9 +14,12 @@
         <a href="{{ route('laporan.index') }}" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
             Kembali
         </a>
-        <a href="{{ route('pdf.harian', $laporan) }}" target="_blank" class="inline-flex items-center justify-center rounded-md bg-red-500 py-2.5 px-6 font-medium text-white hover:bg-red-600 transition">
-            Cetak PDF
-        </a>
+        <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '{{ route('pdf.harian', $laporan) }}', '{{ route('excel.harian', $laporan) }}')" class="inline-flex items-center justify-center rounded-md bg-red-500 py-2.5 px-6 font-medium text-white hover:bg-red-600 transition">
+            Laporan Harian Lama
+        </button>
+        <button type="button" onclick="pilihFormatLaporan('Laporan Harian Baru', '{{ route('pdf.harian.baru', $laporan) }}', '{{ route('excel.harian.baru', $laporan) }}')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
+            Laporan Harian Baru
+        </button>
         @if($laporan->status==='Menunggu')
         <a href="{{ route('verifikasi.show', $laporan) }}" class="inline-flex items-center justify-center rounded-md bg-green-500 py-2.5 px-6 font-medium text-white hover:bg-green-600 transition">
             Verifikasi

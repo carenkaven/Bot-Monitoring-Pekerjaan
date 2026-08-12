@@ -16,6 +16,10 @@
             </div>
 
             <div>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <button type="button" onclick="pilihFormatLaporan('Laporan Mingguan Lama', '{{ route('pdf.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}', '{{ route('excel.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}')" class="inline-flex items-center justify-center rounded-md bg-red-600 py-2.5 px-5 font-medium text-white hover:bg-red-700 transition">Laporan Mingguan Lama</button>
+                    <button type="button" onclick="pilihFormatLaporan('Laporan Mingguan Baru', '{{ route('pdf.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}', '{{ route('excel.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-5 font-medium text-white hover:bg-orange-700 transition">Laporan Mingguan Baru</button>
+                </div>
                 <a href="{{ route('weekly.index') }}"
                     class="inline-flex items-center justify-center gap-2.5 rounded-md bg-slate-600 py-2.5 px-6 text-center font-medium text-white hover:bg-opacity-90 dark:bg-slate-700 transition">
                     ← Kembali
@@ -177,6 +181,8 @@
                                 <td class="py-4 px-4 text-center">
                                     <a href="{{ route('pdf.harian', $laporan->id) }}" target="_blank"
                                         class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-4 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">PDF</a>
+                                    <a href="{{ route('excel.harian', $laporan->id) }}"
+                                        class="inline-flex rounded-lg bg-green-500/10 py-1.5 px-4 text-sm font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Excel</a>
                                 </td>
                             </tr>
                         @empty

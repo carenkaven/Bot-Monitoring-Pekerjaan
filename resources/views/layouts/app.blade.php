@@ -97,6 +97,25 @@
                 }
             });
         }
+
+        function pilihFormatLaporan(judul, pdfUrl, excelUrl) {
+            Swal.fire({
+                title: judul,
+                text: 'Pilih format laporan yang ingin diunduh:',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'PDF',
+                denyButtonText: 'Excel',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc2626',
+                denyButtonColor: '#16a34a'
+            }).then((result) => {
+                if (result.isConfirmed) window.open(pdfUrl, '_blank');
+                if (result.isDenied && excelUrl) window.location.href = excelUrl;
+                if (result.isDenied && !excelUrl) Swal.fire({ icon: 'info', title: 'Excel belum tersedia', text: 'Format Excel untuk laporan mingguan lama belum dibuat.' });
+            });
+        }
     </script>
     @if(session('success'))
         <script>

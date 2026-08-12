@@ -9,8 +9,14 @@ use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Auth\RegisterKaryawanController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\Admin\WeeklyReportController;
 use App\Http\Controllers\WeeklyPdfController;
+use App\Http\Controllers\WeeklyPhysicalPdfController;
+use App\Http\Controllers\WeeklyPhysicalExcelController;
+use App\Http\Controllers\DailyNewPdfController;
+use App\Http\Controllers\DailyNewExcelController;
+use App\Http\Controllers\WeeklyOldExcelController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
 use App\Http\Controllers\Karyawan\LaporanController as KaryawanLaporanController;
 
@@ -83,8 +89,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     /* PDF */
     Route::get('/pdf/harian/{laporan}', [PdfController::class, 'harian'])->name('pdf.harian');
+    Route::get('/excel/harian/{laporan}', [ExcelController::class, 'harian'])->name('excel.harian');
+    Route::get('/pdf/harian-baru/{laporan}', [DailyNewPdfController::class, 'harian'])->name('pdf.harian.baru');
+    Route::get('/excel/harian-baru/{laporan}', [DailyNewExcelController::class, 'harian'])->name('excel.harian.baru');
 
     Route::get('/pdf/weekly/{minggu}/{proyek}', [WeeklyPdfController::class, 'weekly'])->name('pdf.weekly');
+    Route::get('/excel/weekly/{minggu}/{proyek}', [WeeklyOldExcelController::class, 'weekly'])->name('excel.weekly');
+    Route::get('/pdf/weekly-fisik/{minggu}/{proyek}', [WeeklyPhysicalPdfController::class, 'weekly'])->name('pdf.weekly.physical');
+    Route::get('/excel/weekly-fisik/{minggu}/{proyek}', [WeeklyPhysicalExcelController::class, 'weekly'])->name('excel.weekly.physical');
 
 });
 
