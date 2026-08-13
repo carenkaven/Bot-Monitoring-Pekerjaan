@@ -81,9 +81,9 @@ table{
 
 <td width="12%" class="center">
 
-@if(file_exists(public_path('images/logo-ras.png')))
-<img src="{{ public_path('images/logo-ras.png') }}" class="logo">
-@endif
+<?php if(file_exists(public_path('images/logo-ras.png'))): ?>
+<img src="<?php echo e(public_path('images/logo-ras.png')); ?>" class="logo">
+<?php endif; ?>
 
 </td>
 
@@ -120,49 +120,49 @@ DOKUMENTASI PEKERJAAN HARIAN
 <tr>
 <td width="25%">Nama Proyek</td>
 <td width="3%">:</td>
-<td>{{ $laporan->nama_proyek }}</td>
+<td><?php echo e($laporan->nama_proyek); ?></td>
 </tr>
 
 <tr>
 <td>Kegiatan</td>
 <td>:</td>
-<td>{{ $laporan->kegiatan }}</td>
+<td><?php echo e($laporan->kegiatan); ?></td>
 </tr>
 
 <tr>
 <td>Sub Kegiatan</td>
 <td>:</td>
-<td>{{ $laporan->sub_kegiatan }}</td>
+<td><?php echo e($laporan->sub_kegiatan); ?></td>
 </tr>
 
 <tr>
 <td>Pekerjaan</td>
 <td>:</td>
-<td>{{ $laporan->pekerjaan }}</td>
+<td><?php echo e($laporan->pekerjaan); ?></td>
 </tr>
 
 <tr>
 <td>Lokasi</td>
 <td>:</td>
-<td>{{ $laporan->lokasi }}</td>
+<td><?php echo e($laporan->lokasi); ?></td>
 </tr>
 
 <tr>
 <td>Kontraktor / Kontraktor Pelaksana</td>
 <td>:</td>
-<td>{{ $laporan->kontraktor }}</td>
+<td><?php echo e($laporan->kontraktor); ?></td>
 </tr>
 
 <tr>
 <td>Konsultan</td>
 <td>:</td>
-<td>{{ $laporan->konsultan }}</td>
+<td><?php echo e($laporan->konsultan); ?></td>
 </tr>
 
 <tr>
 <td>Minggu Ke</td>
 <td>:</td>
-<td>{{ $laporan->minggu_ke }}</td>
+<td><?php echo e($laporan->minggu_ke); ?></td>
 </tr>
 
 </table>
@@ -175,7 +175,8 @@ DOKUMENTASI PEKERJAAN HARIAN
 
 <br><br>
 
-{{ $laporan->kontraktor }}
+<?php echo e($laporan->kontraktor); ?>
+
 
 </td>
 
@@ -202,21 +203,22 @@ Keterangan
 </th>
 
 </tr>
-@if($fotoBase64->count() > 0)
+<?php if($fotoBase64->count() > 0): ?>
 
-@foreach($fotoBase64 as $index => $fotoData)
+<?php $__currentLoopData = $fotoBase64; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $fotoData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
 <tr>
 
 <td class="border center top">
 
-{{ $index + 1 }}
+<?php echo e($index + 1); ?>
+
 
 </td>
 
 <td class="border foto-box center middle">
 
-<img src="{{ $fotoData['src'] }}" class="foto">
+<img src="<?php echo e($fotoData['src']); ?>" class="foto">
 
 </td>
 
@@ -232,7 +234,8 @@ Keterangan
 
 <br><br>
 
-{{ $laporan->minggu_ke }}
+<?php echo e($laporan->minggu_ke); ?>
+
 
 </td>
 
@@ -246,7 +249,8 @@ Keterangan
 
 <br><br>
 
-{{ $fotoData['keterangan'] ?: '-' }}
+<?php echo e($fotoData['keterangan'] ?: '-'); ?>
+
 
 </td>
 
@@ -258,9 +262,9 @@ Keterangan
 
 </tr>
 
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-@else
+<?php else: ?>
 
 <tr>
 
@@ -282,7 +286,8 @@ Belum ada foto dokumentasi
 
 <br><br>
 
-{{ $laporan->minggu_ke }}
+<?php echo e($laporan->minggu_ke); ?>
+
 
 <br><br><br>
 
@@ -296,8 +301,8 @@ Belum ada dokumentasi pekerjaan.
 
 </tr>
 
-@endif
+<?php endif; ?>
 
 </table>
 
-<br><br>
+<br><br><?php /**PATH C:\Users\akuna\OneDrive\Dokumen\PKN 2026\Bot-Monitoring-Pekerjaan\resources\views/pdf/harian.blade.php ENDPATH**/ ?>
