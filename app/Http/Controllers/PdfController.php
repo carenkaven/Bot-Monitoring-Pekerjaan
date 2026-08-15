@@ -18,13 +18,12 @@ class PdfController extends Controller
             'pekerjaans',
         ]);
 
-        // Konversi foto ke base64 agar DomPDF bisa menampilkan gambar
+        // Gunakan path lokal yang kompatibel dengan DomPDF di Windows.
         $fotoBase64 = $laporan->fotos->map(function ($foto) {
-            $path = storage_path('app/public/' . $foto->foto);
-            if (file_exists($path)) {
-                $mime = mime_content_type($path);
+            $path = realpath(storage_path('app/public/' . ltrim($foto->foto, '/\\')));
+            if ($path && is_readable($path)) {
                 return [
-                    'src'         => 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path)),
+                    'src'         => str_replace('\\', '/', $path),
                     'keterangan'  => $foto->keterangan ?? '',
                 ];
             }
@@ -34,7 +33,8 @@ class PdfController extends Controller
         $pdf = Pdf::loadView('pdf.harian', [
             'laporan'    => $laporan,
             'fotoBase64' => $fotoBase64,
-        ])->setPaper('A4', 'portrait');
+        ])->setOption('chroot', base_path())
+          ->setPaper('A4', 'portrait');
 
         return $pdf->stream('Laporan-Harian.pdf');
     }

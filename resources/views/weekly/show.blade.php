@@ -55,6 +55,11 @@
                             <span
                                 class="text-sm font-medium text-black dark:text-white text-right">{{ $summary['lokasi'] }}</span>
                         </div>
+                        <div class="flex justify-between border-b border-stroke pb-3 dark:border-strokedark">
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Tahun Anggaran</span>
+                            <span
+                                class="text-sm font-medium text-black dark:text-white text-right">{{ $summary['tahun_anggaran'] }}</span>
+                        </div>
                         <div class="flex justify-between pb-1">
                             <span class="text-sm text-slate-500 dark:text-slate-400">PIC</span>
                             <span
@@ -127,6 +132,43 @@
                     <h4 class="text-title-lg font-bold text-white">{{ $summary['menunggu'] }}</h4>
                     <span class="text-sm text-yellow-100">Laporan</span>
                 </div>
+            </div>
+        </div>
+
+        {{-- REKAP ITEM PEKERJAAN --}}
+        <div
+            class="rounded-xl border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
+            <h4 class="mb-4 text-title-sm font-bold text-black dark:text-white">Rekap Item Pekerjaan (Sesuai PDF Laporan Fisik)</h4>
+            <div class="max-w-full overflow-x-auto pb-4">
+                <table class="w-full table-auto">
+                    <thead class="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
+                        <tr class="text-left text-sm font-semibold text-black dark:text-white">
+                            <th class="w-[50px] py-3 px-4 font-medium text-center">NO</th>
+                            <th class="min-w-[250px] py-3 px-4 font-medium">ITEM PEKERJAAN</th>
+                            <th class="py-3 px-4 font-medium text-center">BOBOT S/D MINGGU INI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stroke dark:divide-strokedark">
+                        @forelse($rekapFisik as $row)
+                            @if(!empty($row['is_header']))
+                                <tr class="bg-gray-100 dark:bg-meta-4/30">
+                                    <td class="py-3 px-4 text-left font-bold text-black dark:text-white pl-4">{{ $row['no'] }}</td>
+                                    <td class="py-3 px-4 font-bold text-black dark:text-white" colspan="2">{{ $row['item'] }}</td>
+                                </tr>
+                            @else
+                                <tr class="hover:bg-gray-50 dark:hover:bg-meta-4/50 transition text-sm">
+                                    <td class="py-3 px-4 text-right text-black dark:text-white pr-4">{{ $row['no'] }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-200">{{ $row['item'] }}</td>
+                                    <td class="py-3 px-4 text-center text-gray-800 dark:text-gray-200">{{ number_format($row['sampai_bobot'] * 100, 3) }}%</td>
+                                </tr>
+                            @endif
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center py-6 text-gray-500 dark:text-gray-400">Belum ada item pekerjaan.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
 

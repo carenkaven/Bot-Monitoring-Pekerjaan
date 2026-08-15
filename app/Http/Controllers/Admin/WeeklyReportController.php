@@ -218,18 +218,17 @@ class WeeklyReportController extends Controller
 
         ];
 
+        $physicalService = new \App\Services\WeeklyPhysicalReportService();
+        $physicalData = $physicalService->build($minggu, $proyek);
+        $rekapFisik = $physicalData['rows'];
+
         return view(
-
             'weekly.show',
-
             compact(
-
                 'laporans',
-
-                'summary'
-
+                'summary',
+                'rekapFisik'
             )
-
         );
     }
 

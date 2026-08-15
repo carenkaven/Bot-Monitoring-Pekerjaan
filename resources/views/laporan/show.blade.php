@@ -130,18 +130,27 @@
                 <h3 class="font-bold text-gray-800 dark:text-white">Tenaga Kerja</h3>
             </div>
             <div class="p-6">
-                @forelse($laporan->tenagas as $t)
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                    @foreach(['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana] as $l => $v)
-                    <div class="rounded-xl border border-blue-200 bg-blue-50 py-4 px-2 dark:border-blue-900 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                        <span class="block text-xs font-semibold uppercase mb-1">{{ $l }}</span>
-                        <span class="block text-2xl font-bold">{{ $v }}</span>
+                @if($laporan->tenagas->isNotEmpty())
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    @foreach($laporan->tenagas as $t)
+                    @php
+                        $label = $t->jenis_tenaga;
+                        $jumlah = $t->jumlah;
+                        if (!$label) {
+                            $fallback = ['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana];
+                            [$label, $jumlah] = collect($fallback)->first(fn ($value) => (int) $value > 0) ?: ['Tenaga Kerja', 0];
+                        }
+                    @endphp
+                    <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                        <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight">{{ $label }}</span>
+                        <span class="mt-2 text-2xl font-bold leading-none">{{ $jumlah }}</span>
+                        <span class="mt-1 text-[10px] font-medium uppercase text-blue-400">{{ $t->satuan ?: 'org' }}</span>
                     </div>
                     @endforeach
                 </div>
-                @empty
+                @else
                 <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Tidak ada data tenaga kerja.</p>
-                @endforelse
+                @endif
             </div>
         </div>
 

@@ -11,7 +11,7 @@
         .header { background: #d9d9d9; text-align: center; font-weight: bold; }
         .center { text-align: center; vertical-align: middle; }
         .top { vertical-align: top; }
-        .photo { width: 31%; height: 48px; object-fit: contain; margin: 1%; }
+        .photo { width: 100px; height: 75px; object-fit: cover; }
         .sign td { text-align: center; vertical-align: bottom; height: 38px; }
     </style>
 </head>
@@ -31,8 +31,11 @@
 
     <table class="grid">
         <tr><th class="header" colspan="2">PEKERJAAN YANG DILAKUKAN</th></tr>
-        @php($pekerjaanItems = $laporan->pekerjaans->pluck('nama_pekerjaan')->prepend($laporan->pekerjaan)->filter()->unique()->values())
-        @for($i = 0; $i < 10; $i++)
+        @php
+            $pekerjaanItems = $laporan->pekerjaans->pluck('nama_pekerjaan')->prepend($laporan->pekerjaan)->filter()->unique()->values();
+            $totalBarisTenagaAlat = max(10, $laporan->tenagas->count(), $laporan->alats->count());
+        @endphp
+        @for($i = 0; $i < $totalBarisTenagaAlat; $i++)
             <tr><td class="center" style="width: 5%;">{{ $i + 1 }}</td><td>{{ $pekerjaanItems[$i] ?? '' }}</td></tr>
         @endfor
     </table>
@@ -42,7 +45,9 @@
         <tr><th class="header" colspan="7">BAHAN / MATERIAL</th></tr>
         <tr><th>NO.</th><th>NAMA BAHAN</th><th>VOL.</th><th>SAT.</th><th colspan="2">STATUS</th><th>KETERANGAN</th></tr>
         @for($i = 0; $i < 11; $i++)
-            @php($material = $laporan->materials[$i] ?? null)
+            @php
+                $material = $laporan->materials->values()->get($i);
+            @endphp
             <tr><td class="center">{{ $i + 1 }}</td><td>{{ $material->nama_material ?? '' }}</td><td class="center">{{ $material->volume ?? '' }}</td><td class="center">{{ $material->satuan ?? '' }}</td><td></td><td></td><td></td></tr>
         @endfor
     </table>
@@ -51,10 +56,26 @@
     <table class="grid">
         <tr><th class="header" colspan="4">TENAGA KERJA</th><th class="header" colspan="4">ALAT</th></tr>
         <tr><th>NO.</th><th>MACAM TENAGA KERJA</th><th>JUMLAH</th><th>SAT.</th><th>NO.</th><th>NAMA ALAT</th><th>JUMLAH</th><th>SATUAN</th></tr>
-        @for($i = 0; $i < 10; $i++)
-            @php($tenaga = $laporan->tenagas[$i] ?? null)
-            @php($alat = $laporan->alats[$i] ?? null)
-            <tr><td class="center">{{ $i + 1 }}</td><td>{{ $tenaga ? 'Pekerja' : '' }}</td><td class="center">{{ $tenaga->pekerja ?? '' }}</td><td class="center">{{ $tenaga ? 'org' : '' }}</td><td class="center">{{ $i + 1 }}</td><td>{{ $alat->nama_alat ?? '' }}</td><td class="center">{{ $alat->jumlah ?? '' }}</td><td class="center">{{ $alat ? 'unit' : '' }}</td></tr>
+        @php
+            $tenagaList = [];
+            foreach ($laporan->tenagas as $t) {
+                if ($t->jenis_tenaga) {
+                    $tenagaList[] = ['jenis' => $t->jenis_tenaga, 'jumlah' => $t->jumlah, 'satuan' => $t->satuan ?? 'org'];
+                } else {
+                    if ($t->pekerja !== null) $tenagaList[] = ['jenis' => 'Pekerja', 'jumlah' => $t->pekerja, 'satuan' => 'org'];
+                    if ($t->tukang !== null) $tenagaList[] = ['jenis' => 'Tukang', 'jumlah' => $t->tukang, 'satuan' => 'org'];
+                    if ($t->mandor !== null) $tenagaList[] = ['jenis' => 'Mandor', 'jumlah' => $t->mandor, 'satuan' => 'org'];
+                    if ($t->pelaksana !== null) $tenagaList[] = ['jenis' => 'Pelaksana lapangan', 'jumlah' => $t->pelaksana, 'satuan' => 'org'];
+                }
+            }
+            $totalBarisTenagaAlat = max(10, count($tenagaList), $laporan->alats->count());
+        @endphp
+        @for($i = 0; $i < $totalBarisTenagaAlat; $i++)
+            @php
+                $tenaga = $tenagaList[$i] ?? null;
+                $alat = $laporan->alats[$i] ?? null;
+            @endphp
+            <tr><td class="center">{{ $i + 1 }}</td><td>{{ $tenaga['jenis'] ?? '' }}</td><td class="center">{{ $tenaga['jumlah'] ?? '' }}</td><td class="center">{{ isset($tenaga) ? $tenaga['satuan'] : '' }}</td><td class="center">{{ $i + 1 }}</td><td>{{ $alat->nama_alat ?? '' }}</td><td class="center">{{ $alat->jumlah ?? '' }}</td><td class="center">{{ $alat ? 'unit' : '' }}</td></tr>
         @endfor
     </table>
     <br>
@@ -64,32 +85,69 @@
             <td class="top" style="width: 55%; padding-right: 8px;">
                 <table class="grid">
                     <tr><th colspan="3">WAKTU</th><th colspan="2">JAM KERJA</th><th colspan="2">CUACA</th></tr>
+                    @php
+                        $patKerja = 'file:///' . str_replace('\\', '/', public_path('images/pat_kerja.png'));
+                        $patIstirahat = 'file:///' . str_replace('\\', '/', public_path('images/pat_istirahat.png'));
+                        $patHujan = 'file:///' . str_replace('\\', '/', public_path('images/pat_hujan.png'));
+                        
+                        $startHour = $laporan->jam_mulai ? (int) substr($laporan->jam_mulai, 0, 2) : null;
+                        $endHour = $laporan->jam_selesai ? (int) substr($laporan->jam_selesai, 0, 2) : null;
+                        $cuacaStr = strtolower($laporan->cuaca ?? '');
+                        
+                        $cuacaStyle = 'background-color: #ffffff;';
+                        if (str_contains($cuacaStr, 'gerimis')) {
+                            $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+                        } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
+                            $cuacaStyle = "background-color: #d9d9d9; background-image: url('$patHujan'); background-repeat: repeat;";
+                        } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
+                            $cuacaStyle = "background-color: #ffffff;";
+                        }
+                    @endphp
                     @for($h = 0; $h < 24; $h++)
-                        <tr><td colspan="3" class="center">{{ sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24) }}</td><td colspan="2" class="center">{{ $h === 0 ? (($laporan->jam_mulai ?? '-') . ' - ' . ($laporan->jam_selesai ?? '-')) : '' }}</td><td colspan="2" class="center">{{ $h === 0 ? ($laporan->cuaca ?? '-') : '' }}</td></tr>
+                        @php
+                            $jamStyle = 'background-color: #ffffff;';
+                            if ($startHour !== null && $endHour !== null) {
+                                if ($h >= $startHour && $h < $endHour) {
+                                    $jamStyle = ($h == 12) ? "background-color: #d9d9d9; background-image: url('$patIstirahat'); background-repeat: repeat;" : "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+                                }
+                            }
+                            $cellCuacaStyle = ($jamStyle !== 'background-color: #ffffff;') ? $cuacaStyle : 'background-color: #ffffff;';
+                        @endphp
+                        <tr>
+                            <td colspan="3" class="center">{{ sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24) }}</td>
+                            <td colspan="2" style="{{ $jamStyle }}"></td>
+                            <td colspan="2" style="{{ $cellCuacaStyle }}"></td>
+                        </tr>
                     @endfor
                 </table>
             </td>
             <td class="top" style="width: 45%; padding-left: 8px;">
-                <table class="grid">
-                    <tr><th colspan="2">Notasi Jam Kerja</th></tr>
-                    <tr><td style="height: 8px;"></td><td>Kerja</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Istirahat</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Tidak bekerja</td></tr>
+                <table style="border-collapse: collapse;">
+                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Jam Kerja :</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Kerja</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patIstirahat }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Istirahat</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Tidak bekerja</td></tr>
                 </table>
                 <br>
-                <table class="grid">
-                    <tr><th colspan="2">Notasi Cuaca</th></tr>
-                    <tr><td style="height: 8px;"></td><td>Gerimis</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Hujan Deras</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Cerah</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Berawan/Mendung</td></tr>
+                <table style="border-collapse: collapse;">
+                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Cuaca :</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Gerimis</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patHujan }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Hujan Deras</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Cerah</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Berawan/Mendung</td></tr>
                 </table>
                 <br>
-                <table class="border"><tr><td class="header">FOTO DOKUMENTASI</td></tr><tr><td class="center" style="height: 155px;">
-                    @if(count($fotoBase64) > 0)
-                        @foreach($fotoBase64 as $src)
-                            <img class="photo" src="{{ $src }}">
-                        @endforeach
+                <table class="border"><tr><td class="header">FOTO DOKUMENTASI</td></tr><tr><td class="center" style="height: 155px; padding: 4px;">
+                    @if(count($fotoDokumentasi) > 0)
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                @foreach($fotoDokumentasi as $src)
+                                    <td style="width:33.33%; border:0; padding:2px; text-align:center; vertical-align:middle;">
+                                        <img class="photo" src="{{ $src }}" width="100" height="75" alt="Foto dokumentasi">
+                                    </td>
+                                @endforeach
+                            </tr>
+                        </table>
                     @else
                         Belum ada foto dokumentasi
                     @endif

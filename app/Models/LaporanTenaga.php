@@ -11,6 +11,9 @@ class LaporanTenaga extends Model
 
     protected $fillable = [
         'laporan_id',
+        'jenis_tenaga',
+        'jumlah',
+        'satuan',
         'pekerja',
         'tukang',
         'mandor',

@@ -7,6 +7,8 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.png') }}">
     <script>
         // Apply dark class to html immediately before render to prevent flicker
         (function () {
@@ -52,9 +54,6 @@
             <main>
                 <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
 
-                    <div class="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-gray-800 dark:text-blue-400" role="alert">
-                        <span class="font-medium">Pengumuman Penting:</span> Agar notifikasi dari Bot WhatsApp dapat diterima dengan baik dan tautan dapat diklik, mohon kepada seluruh pegawai untuk <strong>menyimpan (save) kontak nomor Bot WhatsApp</strong> ini di HP Anda (misal: "Bot Monitoring Pekerjaan"). Hal ini juga membantu mencegah nomor Bot terblokir oleh sistem antispam WhatsApp.
-                    </div>
 
                     @isset($header)
                         <div class="mb-6">

@@ -350,60 +350,14 @@ $alat = $laporan->alats->values();
 
 @endphp
 
+@php($totalBarisTenagaAlat = max(10, $laporan->tenagas->count(), $alat->count()))
+@for($i=0; $i<$totalBarisTenagaAlat; $i++)
+@php($tenaga = $laporan->tenagas[$i] ?? null)
 <tr>
-<td class="center">1</td>
-<td>Pekerja</td>
-<td class="center">{{ $totalPekerja }}</td>
-<td class="center italic">org</td>
-<td class="center">1</td>
-<td>{{ $alat[0]->nama_alat ?? '' }}</td>
-<td class="center">{{ $alat[0]->jumlah ?? '' }}</td>
-<td class="center">{{ $alat[0]->satuan ?? '' }}</td>
-<td>{{ $alat[0]->keterangan ?? '' }}</td>
-</tr>
-
-<tr>
-<td class="center">2</td>
-<td>Tukang</td>
-<td class="center">{{ $totalTukang }}</td>
-<td class="center italic">org</td>
-<td class="center">2</td>
-<td>{{ $alat[1]->nama_alat ?? '' }}</td>
-<td class="center">{{ $alat[1]->jumlah ?? '' }}</td>
-<td class="center">{{ $alat[1]->satuan ?? '' }}</td>
-<td>{{ $alat[1]->keterangan ?? '' }}</td>
-</tr>
-
-<tr>
-<td class="center">3</td>
-<td>Mandor</td>
-<td class="center">{{ $totalMandor }}</td>
-<td class="center italic">org</td>
-<td class="center">3</td>
-<td>{{ $alat[2]->nama_alat ?? '' }}</td>
-<td class="center">{{ $alat[2]->jumlah ?? '' }}</td>
-<td class="center">{{ $alat[2]->satuan ?? '' }}</td>
-<td>{{ $alat[2]->keterangan ?? '' }}</td>
-</tr>
-
-<tr>
-<td class="center">4</td>
-<td>Pelaksana Lapangan</td>
-<td class="center">{{ $totalPelaksana }}</td>
-<td class="center italic">org</td>
-<td class="center">4</td>
-<td>{{ $alat[3]->nama_alat ?? '' }}</td>
-<td class="center">{{ $alat[3]->jumlah ?? '' }}</td>
-<td class="center">{{ $alat[3]->satuan ?? '' }}</td>
-<td>{{ $alat[3]->keterangan ?? '' }}</td>
-</tr>
-
-@for($i=4;$i<10;$i++)
-<tr>
-<td>&nbsp;</td>
-<td></td>
-<td></td>
-<td></td>
+<td class="center">{{ $i + 1 }}</td>
+<td>{{ $tenaga->jenis_tenaga ?? ($i === 0 ? 'Pekerja' : ($i === 1 ? 'Tukang' : ($i === 2 ? 'Mandor' : ($i === 3 ? 'Pelaksana Lapangan' : '')))) }}</td>
+<td class="center">{{ $tenaga->jumlah ?? ($i === 0 ? $totalPekerja : ($i === 1 ? $totalTukang : ($i === 2 ? $totalMandor : ($i === 3 ? $totalPelaksana : '')))) }}</td>
+<td class="center italic">{{ $tenaga->satuan ?? ($tenaga ? 'org' : '') }}</td>
 <td class="center">{{ $i+1 }}</td>
 <td>{{ $alat[$i]->nama_alat ?? '' }}</td>
 <td class="center">{{ $alat[$i]->jumlah ?? '' }}</td>

@@ -43,13 +43,13 @@
             <table class="w-full table-auto">
                 <thead class="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
                     <tr class="text-left text-sm font-semibold text-black dark:text-white">
-                        <th class="min-w-[120px] py-4 px-2 font-medium">Tanggal</th>
-                        <th class="min-w-[150px] py-4 px-2 font-medium">Karyawan</th>
-                        <th class="min-w-[150px] py-4 px-2 font-medium">Proyek</th>
-                        <th class="min-w-[200px] py-4 px-2 font-medium">Lokasi</th>
+                        <th class="py-4 px-2 font-medium">Tanggal</th>
+                        <th class="py-4 px-2 font-medium">Karyawan</th>
+                        <th class="py-4 px-2 font-medium">Proyek</th>
+                        <th class="py-4 px-2 font-medium">Lokasi</th>
                         <th class="py-4 px-2 font-medium text-center">Status</th>
-                        <th class="py-4 px-2 font-medium text-center lg:min-w-[250px]">Laporan</th>
-                        <th class="py-4 px-2 font-medium text-center lg:min-w-[150px]">Aksi</th>
+                        <th class="py-4 px-2 font-medium text-center">Laporan</th>
+                        <th class="py-4 px-2 font-medium text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stroke dark:divide-strokedark">
