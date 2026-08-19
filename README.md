@@ -6,9 +6,9 @@ Sebuah sistem aplikasi berbasis **Laravel** yang mengintegrasikan Web Dashboard 
 
 ### 1. Web Dashboard (Admin)
 - **Manajemen Karyawan:** Tambah, edit, dan atur status akses pekerja/karyawan.
-- **Monitoring Laporan:** Tinjau seluruh laporan harian yang masuk secara *real-time*.
+- **Monitoring Laporan:** Tinjau seluruh laporan harian & mingguan yang masuk secara *real-time*.
 - **Verifikasi Laporan:** Admin dapat menyetujui, menolak, hingga menghapus laporan yang masuk.
-- **Export PDF:** Cetak *invoice* / rekapitulasi harian laporan pekerja secara rapi dalam bentuk dokumen PDF.
+- **Export PDF & Excel:** Cetak *invoice* / rekapitulasi harian serta mingguan progres fisik proyek secara rapi dalam bentuk dokumen PDF dan Excel.
 
 ### 2. WhatsApp Bot Fonnte (2-Langkah)
 - **Menu Utama:** Navigasi interaktif berbasis angka (1 untuk *Lapor*, 2 untuk *Status*, 3 untuk *Bantuan*).
