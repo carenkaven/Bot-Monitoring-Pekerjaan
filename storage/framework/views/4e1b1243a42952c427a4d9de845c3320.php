@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.webp') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.webp') }}">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('images/logo-ras.webp')); ?>">
+    <link rel="apple-touch-icon" href="<?php echo e(asset('images/logo-ras.webp')); ?>">
     <title>Monitoring Laporan | PT Reno Abirama Sakti</title>
     <!-- Alpine Plugins & Core -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -18,7 +18,7 @@
             } catch (e) {}
         })();
     </script>
-    @vite(['resources/css/app.css','resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css','resources/js/app.js']); ?>
     
     <style>
         .glass-panel {
@@ -56,7 +56,7 @@
         <div class="glass-panel rounded-3xl p-10 sm:p-16 text-center shadow-2xl transition-all duration-500 transform hover:scale-[1.01]">
             
             <div class="inline-flex justify-center items-center w-32 h-32 rounded-3xl bg-white shadow-lg border border-slate-100 p-4 mb-8 dark:border-slate-700">
-                <img src="{{ asset('images/logo-ras.webp') }}" alt="Logo PT Reno Abirama Sakti" class="w-full h-auto object-contain">
+                <img src="<?php echo e(asset('images/logo-ras.webp')); ?>" alt="Logo PT Reno Abirama Sakti" class="w-full h-auto object-contain">
             </div>
 
             <h1 class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 dark:from-blue-400 dark:to-indigo-300 tracking-tight mb-4">
@@ -72,13 +72,13 @@
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-5 w-full sm:w-auto">
-                <a href="{{ route('login') }}"
+                <a href="<?php echo e(route('login')); ?>"
                    class="group relative inline-flex justify-center items-center rounded-xl bg-blue-600 overflow-hidden py-3 px-10 font-semibold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all duration-300 hover:scale-105">
                     <span class="relative z-10">Sign In Sistem</span>
                     <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all translate-x-[-100%] group-hover:translate-x-[100%] duration-1000"></div>
                 </a>
 
-                <a href="{{ route('register.karyawan') }}"
+                <a href="<?php echo e(route('register.karyawan')); ?>"
                    class="inline-flex justify-center items-center rounded-xl border-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-slate-900 py-3 px-10 text-center font-semibold transition-all duration-300 hover:scale-105 shadow-md">
                     Daftar Karyawan
                 </a>
@@ -119,3 +119,4 @@ document.addEventListener('DOMContentLoaded', syncUI);
 
 </body>
 </html>
+<?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/pages/landing.blade.php ENDPATH**/ ?>

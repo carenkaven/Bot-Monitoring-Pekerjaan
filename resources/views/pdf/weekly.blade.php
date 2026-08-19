@@ -35,23 +35,7 @@ body{
 
 <body>
 
-{{-- ===================================================== --}}
-{{-- COVER --}}
-{{-- ===================================================== --}}
-
-@include('pdf.cover-weekly')
-
-{{-- ===================================================== --}}
-{{-- SELURUH LAPORAN HARIAN --}}
-{{-- ===================================================== --}}
-
-@foreach($laporans as $laporan)
-
-<div class="page-break"></div>
-
-@include('pdf.daily-weekly')
-
-@endforeach
+@include('pdf.weekly-content')
 
 </body>
 

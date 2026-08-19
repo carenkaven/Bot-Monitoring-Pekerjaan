@@ -14,18 +14,15 @@ export const handleIncomingMessage = async (sock, m) => {
 
         const phone = remoteJid.split('@')[0];
 
-        // Ambil isi teks
-        const messageType = Object.keys(msg.message)[0];
-        const isImage = messageType === 'imageMessage';
-
-        let messageText = '';
-        if (messageType === 'conversation') {
-            messageText = msg.message.conversation;
-        } else if (messageType === 'extendedTextMessage') {
-            messageText = msg.message.extendedTextMessage.text;
-        } else if (isImage) {
-            messageText = msg.message.imageMessage?.caption || '';
-        }
+        // Ambil isi teks (Support Disappearing Messages / Ephemeral)
+        const msgBody = msg.message;
+        let messageText = msgBody?.conversation || 
+                          msgBody?.extendedTextMessage?.text || 
+                          msgBody?.ephemeralMessage?.message?.extendedTextMessage?.text ||
+                          msgBody?.ephemeralMessage?.message?.conversation ||
+                          msgBody?.imageMessage?.caption ||
+                          msgBody?.ephemeralMessage?.message?.imageMessage?.caption ||
+                          '';
 
         const cleanText = messageText.trim();
         const upperText = cleanText.toUpperCase();

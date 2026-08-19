@@ -81,8 +81,8 @@ table{
 
 <td width="12%" class="center">
 
-@if(file_exists(public_path('images/logo-ras.png')))
-<img src="{{ public_path('images/logo-ras.png') }}" class="logo">
+@if(file_exists(public_path('images/logo-ras.webp')))
+<img src="{{ public_path('images/logo-ras.webp') }}" class="logo">
 @endif
 
 </td>

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.webp') }}">
     <title>Daftar Karyawan | Monitoring Laporan</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
@@ -75,7 +75,7 @@
                 <div
                     class="absolute inset-0 bg-blue-50 dark:bg-slate-800 transform translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out">
                 </div>
-                <img src="{{ asset('images/logo-ras.png') }}" alt="Logo PT Reno Abirama Sakti"
+                <img src="{{ asset('images/logo-ras.webp') }}" alt="Logo PT Reno Abirama Sakti"
                     class="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-110">
             </div>
 

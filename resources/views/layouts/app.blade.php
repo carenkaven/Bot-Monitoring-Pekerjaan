@@ -7,8 +7,8 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.webp') }}">
     <script>
         // Apply dark class to html immediately before render to prevent flicker
         (function () {

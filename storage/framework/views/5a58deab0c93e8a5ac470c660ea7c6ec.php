@@ -6,8 +6,8 @@
     <a href="<?php echo e(url('/')); ?>" class="flex items-center gap-3">
       <div class="flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-white rounded-lg p-1"
         :class="sidebarToggle ? 'w-10 h-10' : 'w-12 h-12'">
-        <?php if(file_exists(public_path('images/logo-ras.png'))): ?>
-          <img src="<?php echo e(asset('images/logo-ras.png')); ?>" class="w-full h-full object-contain">
+        <?php if(file_exists(public_path('images/logo-ras.webp'))): ?>
+          <img src="<?php echo e(asset('images/logo-ras.webp')); ?>" class="w-full h-full object-contain">
         <?php else: ?>
           <span class="text-blue-700 font-bold" :class="sidebarToggle ? 'text-xs' : 'text-lg'">RAS</span>
         <?php endif; ?>
@@ -134,4 +134,5 @@
 
     </nav>
   </div>
-</aside><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>
+</aside>
+<?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>

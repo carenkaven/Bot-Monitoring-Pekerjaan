@@ -1,4 +1,4 @@
-import { makeWASocket, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
+import { makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import { handleIncomingMessage } from '../handlers/messageHandler.js';
 import Pino from 'pino';
 import fs from 'fs';
@@ -35,45 +35,26 @@ export const connectToWhatsApp = async (isReconnect = false) => {
 
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
+    const { version } = await fetchLatestBaileysVersion();
+
     const sock = makeWASocket({
+        version,
         logger,
-        printQRInTerminal: false,
+        printQRInTerminal: true,
         auth: state,
-        browser: ['Monitoring PKN', 'Chrome', '120.0.0'],
     });
 
-    // ─── Pairing Code (hanya jika belum terdaftar) ────────────────────────────
-    if (!sock.authState.creds.registered) {
-        try {
-            console.log(`📲 Meminta pairing code untuk nomor: ${PHONE}`);
-            // Tunggu sebentar agar socket siap
-            await new Promise(r => setTimeout(r, 2000));
-
-            const code = await sock.requestPairingCode(PHONE);
-            const formatted = code?.match(/.{1,4}/g)?.join('-') ?? code;
-
-            console.log('\n╔══════════════════════════════════╗');
-            console.log('║   KODE PAIRING WHATSAPP          ║');
-            console.log(`║         ${(formatted ?? '').padEnd(26)}║`);
-            console.log('╚══════════════════════════════════╝');
-            console.log('\n📋 Cara pairing:');
-            console.log('   1. Buka WhatsApp di HP');
-            console.log('   2. Titik tiga (⋮) → Perangkat Tertaut');
-            console.log('   3. Tautkan Perangkat → Tautkan dengan Nomor Telepon');
-            console.log(`   4. Masukkan kode: ${formatted ?? '-'}\n`);
-        } catch (err) {
-            console.error('❌ Gagal minta pairing code:', err.message);
-            // Coba lagi setelah 5 detik
-            console.log('🔄 Mencoba ulang dalam 5 detik...');
-            await new Promise(r => setTimeout(r, 5000));
-            clearSession();
-            return connectToWhatsApp(false);
-        }
-    }
+    // ─── Pairing Code (Dinonaktifkan karena WhatsApp memblokir dengan kode 405) ──
+    // Silakan scan QR code yang muncul di terminal
 
     // ─── Event: status koneksi ────────────────────────────────────────────────
     sock.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update;
+        const { connection, lastDisconnect, qr } = update;
+        
+        if (qr) {
+            console.log('📝 Menyimpan QR Code ke file untuk web...');
+            fs.writeFileSync(QR_PATH, qr);
+        }
 
         if (connection === 'open') {
             if (fs.existsSync(QR_PATH)) fs.unlinkSync(QR_PATH);
@@ -86,12 +67,12 @@ export const connectToWhatsApp = async (isReconnect = false) => {
             console.log(`⚠️  Koneksi terputus (kode: ${code ?? 'unknown'})`);
 
             if (isLoggedOut) {
-                console.log('🚪 Sesi logout. Memulai ulang dengan pairing baru...');
+                console.log('🚪 Sesi logout. Memulai ulang...');
                 clearSession();
-                await connectToWhatsApp(false);
+                setTimeout(() => connectToWhatsApp(false), 2000);
             } else {
-                console.log('🔄 Reconnecting...');
-                await connectToWhatsApp(true); // Reconnect tanpa clear sesi
+                console.log('🔄 Reconnecting in 3s...');
+                setTimeout(() => connectToWhatsApp(true), 3000); // Delay before reconnect
             }
         }
     });

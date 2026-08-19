@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-ras.webp') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo-ras.webp') }}">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('images/logo-ras.webp')); ?>">
+    <link rel="apple-touch-icon" href="<?php echo e(asset('images/logo-ras.webp')); ?>">
     <title>Login | Monitoring Laporan Harian</title>
     <!-- Alpine -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
@@ -18,7 +18,7 @@
             } catch (e) { }
         })();
     </script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <style>
         .glass-auth {
             background: rgba(255, 255, 255, 0.4);
@@ -58,7 +58,7 @@
                     <div
                         class="flex items-center justify-between mb-8 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
                         <!-- Tombol Kembali -->
-                        <a href="{{ route('landing') }}"
+                        <a href="<?php echo e(route('landing')); ?>"
                             class="inline-flex items-center justify-center rounded-xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition border border-slate-200 dark:border-slate-700 gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
@@ -92,19 +92,20 @@
                         </p>
                     </div>
 
-                    @if(session('status'))
+                    <?php if(session('status')): ?>
                         <div
                             class="mb-5 bg-green-500/10 text-green-600 p-4 rounded-xl border border-green-500/20 font-medium text-sm">
-                            {{ session('status') }}
-                        </div>
-                    @endif
+                            <?php echo e(session('status')); ?>
 
-                    <form method="POST" action="{{ route('login') }}" class="space-y-6 lg:text-left text-left">
-                        @csrf
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" action="<?php echo e(route('login')); ?>" class="space-y-6 lg:text-left text-left">
+                        <?php echo csrf_field(); ?>
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Email
                                 Address</label>
-                            <input type="email" name="email" value="{{ old('email') }}" required
+                            <input type="email" name="email" value="<?php echo e(old('email')); ?>" required
                                 placeholder="admin@domain.com"
                                 class="w-full rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm py-3 px-5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800/50 dark:text-white dark:focus:border-blue-400 transition-all" />
                         </div>
@@ -155,7 +156,7 @@
 
                 <!-- Footer link out of glass -->
                 <div class="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
-                    <p>Belum punya akun? <a href="{{ route('register.karyawan') }}"
+                    <p>Belum punya akun? <a href="<?php echo e(route('register.karyawan')); ?>"
                             class="font-semibold text-blue-600 dark:text-blue-400 hover:underline transition">Daftar
                             Karyawan</a></p>
                 </div>
@@ -181,7 +182,7 @@
                     <div
                         class="absolute inset-0 bg-blue-50 dark:bg-slate-800 transform translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out">
                     </div>
-                    <img src="{{ asset('images/logo-ras.webp') }}" alt="Logo PT Reno Abirama Sakti"
+                    <img src="<?php echo e(asset('images/logo-ras.webp')); ?>" alt="Logo PT Reno Abirama Sakti"
                         class="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-110">
                 </div>
 
@@ -230,3 +231,4 @@
 </body>
 
 </html>
+<?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/auth/login.blade.php ENDPATH**/ ?>

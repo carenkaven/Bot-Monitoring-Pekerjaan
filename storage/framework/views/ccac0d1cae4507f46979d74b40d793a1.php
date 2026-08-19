@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -110,12 +112,14 @@
                             </svg>
                         </button>
                         
-                        <button type="button" onclick="laporanKosong()" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 cursor-not-allowed">
-                            <svg class="fill-current" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19 8H5V4H19V8ZM19 10C20.1046 10 21 10.8954 21 12V18H17V22H7V18H3V12C3 10.8954 3.89543 10 5 10H19ZM15 16H9V20H15V16ZM16 12C16 11.4477 16.4477 11 17 11C17.5523 11 18 11.4477 18 12C18 12.5523 17.5523 13 17 13C16.4477 13 16 12.5523 16 12Z" fill="currentColor"></path>
-                            </svg>
-                            Cetak
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="laporanKosong()" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 cursor-not-allowed">
+                                <svg class="fill-current" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 8H5V4H19V8ZM19 10C20.1046 10 21 10.8954 21 12V18H17V22H7V18H3V12C3 10.8954 3.89543 10 5 10H19ZM15 16H9V20H15V16ZM16 12C16 11.4477 16.4477 11 17 11C17.5523 11 18 11.4477 18 12C18 12.5523 17.5523 13 17 13C16.4477 13 16 12.5523 16 12Z" fill="currentColor"></path>
+                                </svg>
+                                Cetak
+                            </button>
+                        </div>
                     <?php else: ?>
                         <a href="<?php echo e(route('weekly.show', ['minggu' => $weekNum, 'proyek' => 'all', 'year' => $year, 'month' => $month])); ?>" 
                            class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition group">
@@ -124,7 +128,6 @@
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M8.11894 1.48803C8.38527 1.2217 8.81702 1.2217 9.08336 1.48803L13.8056 6.21025C14.0719 6.47659 14.0719 6.90833 13.8056 7.17467L9.08336 11.8969C8.81702 12.1632 8.38527 12.1632 8.11894 11.8969C7.8526 11.6306 7.8526 11.1988 8.11894 10.9325L11.6667 7.38473L0.833333 7.38473C0.456639 7.38473 0.151515 7.07961 0.151515 6.70291C0.151515 6.32622 0.456639 6.0211 0.833333 6.0211L11.6667 6.0211L8.11894 2.47334C7.8526 2.207 7.8526 1.77526 8.11894 1.48803Z" fill="currentColor"></path>
                             </svg>
                         </a>
-                        
                         <button type="button" onclick="cetakCardBaru(<?php echo e($weekNum); ?>)" class="inline-flex items-center gap-1.5 text-sm font-medium text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 transition">
                             <svg class="fill-current" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19 8H5V4H19V8ZM19 10C20.1046 10 21 10.8954 21 12V18H17V22H7V18H3V12C3 10.8954 3.89543 10 5 10H19ZM15 16H9V20H15V16ZM16 12C16 11.4477 16.4477 11 17 11C17.5523 11 18 11.4477 18 12C18 12.5523 17.5523 13 17 13C16.4477 13 16 12.5523 16 12Z" fill="currentColor"></path>
@@ -145,6 +148,7 @@
             <div class="mb-4">
                 <label class="mb-2 block text-sm font-medium text-black dark:text-white">Pilih Proyek</label>
                 <select id="customProyek" class="w-full rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-blue-500 dark:border-form-strokedark dark:bg-form-input text-black dark:text-white">
+                    <option value="all" class="text-black dark:text-white bg-white dark:bg-boxdark font-bold">-- SEMUA PROYEK --</option>
                     <?php $__currentLoopData = $proyeks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <option value="<?php echo e($p); ?>" class="text-black dark:text-white bg-white dark:bg-boxdark"><?php echo e($p); ?></option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -222,7 +226,9 @@
 
     async function cetakCardBaru(minggu) {
         const proyeks = <?php echo json_encode($proyeks); ?>;
-        let inputOptions = {};
+        let inputOptions = {
+            'all': '-- SEMUA PROYEK --'
+        };
         proyeks.forEach(p => { inputOptions[p] = p; });
 
         const { value: proyek } = await Swal.fire({
@@ -238,12 +244,23 @@
             cancelButtonText: 'Batal'
         });
 
-        if (proyek) {
+        if (proyek === 'all') {
+            cetakSemuaProyek(minggu);
+        } else if (proyek) {
             const urlPdf = `<?php echo e(url('pdf/weekly-fisik')); ?>/${minggu}/${encodeURIComponent(proyek)}?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
             const urlExcel = `<?php echo e(url('excel/weekly-fisik')); ?>/${minggu}/${encodeURIComponent(proyek)}?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
             
             pilihFormatLaporan(`Cetak Laporan Baru (Minggu ${minggu})`, urlPdf, urlExcel);
         }
+    }
+
+    function cetakSemuaProyek(minggu) {
+        const urlLamaPdf = `<?php echo e(url('pdf/weekly')); ?>/${minggu}/all?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
+        const urlLamaExcel = `<?php echo e(url('excel/weekly')); ?>/${minggu}/all?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
+        const urlBaruPdf = `<?php echo e(url('pdf/weekly-fisik')); ?>/${minggu}/all?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
+        const urlBaruExcel = `<?php echo e(url('excel/weekly-fisik')); ?>/${minggu}/all?year=<?php echo e($year); ?>&month=<?php echo e($month); ?>`;
+
+        pilihJenisLaporanMingguan(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel);
     }
 </script>
 <?php $__env->stopPush(); ?>

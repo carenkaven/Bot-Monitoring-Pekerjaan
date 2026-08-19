@@ -11,9 +11,12 @@
         .header { background: #d9d9d9; text-align: center; font-weight: bold; }
         .center { text-align: center; vertical-align: middle; }
         .top { vertical-align: top; }
-        .photo { width: 100px; height: 75px; object-fit: cover; }
+        .photo { width: 95%; max-height: 140px; object-fit: cover; margin: 0 auto; }
         .sign td { text-align: center; vertical-align: bottom; height: 38px; }
         .no-border td { border: none !important; padding: 0 2px; }
+        .waktu-table { width: 100%; border-collapse: collapse; }
+        .waktu-table th, .waktu-table td { border: 1px solid #000; padding: 1px 2px; height: 8px; line-height: 8px; }
+        .waktu-table .no-b { border: none !important; }
     </style>
 </head>
 <body>
@@ -83,86 +86,98 @@
     </table>
     <br>
 
-    <table>
+    <table class="waktu-table">
         <tr>
-            <td class="top" style="width: 55%; padding-right: 8px;">
-                <table class="grid">
-                    <tr><th colspan="3">WAKTU</th><th colspan="2">JAM KERJA</th><th colspan="2">CUACA</th></tr>
-                    @php
-                        $patKerja = 'file:///' . str_replace('\\', '/', public_path('images/pat_kerja.png'));
-                        $patIstirahat = 'file:///' . str_replace('\\', '/', public_path('images/pat_istirahat.png'));
-                        $patHujan = 'file:///' . str_replace('\\', '/', public_path('images/pat_hujan.png'));
-                        
-                        $startHour = $laporan->jam_mulai ? (int) substr($laporan->jam_mulai, 0, 2) : null;
-                        $endHour = $laporan->jam_selesai ? (int) substr($laporan->jam_selesai, 0, 2) : null;
-                        $cuacaStr = strtolower($laporan->cuaca ?? '');
-                        
-                        $cuacaStyle = 'background-color: #ffffff;';
-                        if (str_contains($cuacaStr, 'gerimis')) {
-                            $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
-                        } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
-                            $cuacaStyle = "background-color: #d9d9d9; background-image: url('$patHujan'); background-repeat: repeat;";
-                        } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
-                            $cuacaStyle = "background-color: #ffffff;";
-                        }
-                    @endphp
-                    @for($h = 0; $h < 24; $h++)
-                        @php
-                            $jamStyle = 'background-color: #ffffff;';
-                            if ($startHour !== null && $endHour !== null) {
-                                if ($h >= $startHour && $h < $endHour) {
-                                    $jamStyle = ($h == 12) ? "background-color: #d9d9d9; background-image: url('$patIstirahat'); background-repeat: repeat;" : "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
-                                }
-                            }
-                            $cellCuacaStyle = ($jamStyle !== 'background-color: #ffffff;') ? $cuacaStyle : 'background-color: #ffffff;';
-                        @endphp
-                        <tr>
-                            <td colspan="3" class="center">{{ sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24) }}</td>
-                            <td colspan="2" style="{{ $jamStyle }}"></td>
-                            <td colspan="2" style="{{ $cellCuacaStyle }}"></td>
-                        </tr>
-                    @endfor
-                </table>
-            </td>
-            <td class="top" style="width: 45%; padding-left: 8px;">
-                <table style="border-collapse: collapse;">
-                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Jam Kerja :</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Kerja</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patIstirahat }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Istirahat</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Tidak bekerja</td></tr>
-                </table>
-                <br>
-                <table style="border-collapse: collapse;">
-                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Cuaca :</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Gerimis</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patHujan }}'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Hujan Deras</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Cerah</td></tr>
-                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Berawan/Mendung</td></tr>
-                </table>
-                <br>
-                <table class="border"><tr><td class="header">FOTO DOKUMENTASI</td></tr><tr><td class="center" style="height: 155px; padding: 4px;">
-                    @if(count($fotoDokumentasi) > 0)
-                        <table style="width:100%; border-collapse:collapse;">
-                            <tr>
-                                @foreach($fotoDokumentasi as $src)
-                                    <td style="width:33.33%; border:0; padding:2px; text-align:center; vertical-align:middle;">
-                                        <img class="photo" src="{{ $src }}" width="100" height="75" alt="Foto dokumentasi">
-                                    </td>
-                                @endforeach
-                            </tr>
-                        </table>
-                    @else
-                        Belum ada foto dokumentasi
-                    @endif
-                </td></tr></table>
-            </td>
+            <th class="header" colspan="3" style="width: 25%;">WAKTU</th>
+            <th class="header" colspan="2" style="width: 15%;">JAM KERJA</th>
+            <th class="header" colspan="2" style="width: 15%;">CUACA</th>
+            <td class="no-b" style="width: 2%;"></td>
+            <td class="no-b" colspan="2" style="width: 21%; font-weight:bold; padding-bottom:5px; text-align: left;">Notasi Jam Kerja :</td>
+            <td class="no-b" colspan="2" style="width: 22%; font-weight:bold; padding-bottom:5px; text-align: left;">Notasi Cuaca :</td>
         </tr>
+        @php
+            $patKerja = 'file:///' . str_replace('\\', '/', public_path('images/pat_kerja.png'));
+            $patIstirahat = 'file:///' . str_replace('\\', '/', public_path('images/pat_istirahat.png'));
+            $patHujan = 'file:///' . str_replace('\\', '/', public_path('images/pat_hujan.png'));
+            
+            $startHour = $laporan->jam_mulai ? (int) substr($laporan->jam_mulai, 0, 2) : null;
+            $endHour = $laporan->jam_selesai ? (int) substr($laporan->jam_selesai, 0, 2) : null;
+            $cuacaStr = strtolower($laporan->cuaca ?? '');
+            
+            $cuacaStyle = 'background-color: #ffffff;';
+            if (str_contains($cuacaStr, 'gerimis')) {
+                $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+            } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
+                $cuacaStyle = "background-color: #d9d9d9; background-image: url('$patHujan'); background-repeat: repeat;";
+            } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
+                $cuacaStyle = "background-color: #ffffff;";
+            }
+        @endphp
+        @for($h = 0; $h < 24; $h++)
+            @php
+                $jamStyle = 'background-color: #ffffff;';
+                if ($startHour !== null && $endHour !== null) {
+                    if ($h >= $startHour && $h < $endHour) {
+                        $jamStyle = ($h == 12) ? "background-color: #d9d9d9; background-image: url('$patIstirahat'); background-repeat: repeat;" : "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+                    }
+                }
+                $cellCuacaStyle = ($jamStyle !== 'background-color: #ffffff;') ? $cuacaStyle : 'background-color: #ffffff;';
+            @endphp
+            <tr>
+                <td colspan="3" class="center">{{ sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24) }}</td>
+                <td colspan="2" style="{{ $jamStyle }}"></td>
+                <td colspan="2" style="{{ $cellCuacaStyle }}"></td>
+                
+                <td class="no-b"></td>
+                
+                @if($h == 0)
+                    <td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Kerja</td>
+                    <td style="height: 10px; width: 25px; background-color: #808080; background-image: url('{{ $patKerja }}'); background-repeat: repeat;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Gerimis</td>
+                @elseif($h == 1)
+                    <td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patIstirahat }}'); background-repeat: repeat;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Istirahat</td>
+                    <td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('{{ $patHujan }}'); background-repeat: repeat;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Hujan Deras</td>
+                @elseif($h == 2)
+                    <td style="height: 10px; width: 25px; background-color: #ffffff;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Tidak bekerja</td>
+                    <td style="height: 10px; width: 25px; background-color: #ffffff;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Cerah</td>
+                @elseif($h == 3)
+                    <td class="no-b" colspan="2"></td>
+                    <td style="height: 10px; width: 25px; background-color: #ffffff;"></td>
+                    <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Berawan/Mendung</td>
+                @elseif($h == 4)
+                    <td class="no-b" colspan="4"></td>
+                @elseif($h == 5)
+                    <td class="header" colspan="4">FOTO DOKUMENTASI</td>
+                @elseif($h == 6)
+                    <td class="center" colspan="4" rowspan="18" style="padding: 4px; vertical-align: middle;">
+                        @if(count($fotoDokumentasi) > 0)
+                            <table style="width:100%; border-collapse:collapse; border: none;">
+                                <tr>
+                                    @foreach($fotoDokumentasi as $src)
+                                        <td style="width:33.33%; border:none; padding:2px; text-align:center; vertical-align:middle;">
+                                            <img class="photo" src="{{ $src }}" alt="Foto dokumentasi">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            </table>
+                        @else
+                            Belum ada foto dokumentasi
+                        @endif
+                    </td>
+                @endif
+            </tr>
+        @endfor
     </table>
     <div style="height: 2px;"></div>
 
-    <table class="sign"><tr>
-        <td>Diperiksa oleh:<br><b>Konsultan Pengawas</b><br><br><u>__________________</u><br>PT. RENO ABIRAMA SAKTI</td>
-        <td>{{ optional($laporan->tanggal)->format('d F Y') }}<br>Dibuat oleh:<br><b>Kontraktor Pelaksana</b><br><br><u>__________________</u><br>{{ $laporan->kontraktor }}</td>
+    <table class="sign" style="margin-top: 15px; width: 100%;"><tr>
+        <td style="width: 50%;">Diperiksa oleh:<br><b>Konsultan Pengawas</b><br><br><br><br><br><u>___________________________</u><br>PT. RENO ABIRAMA SAKTI</td>
+        <td style="width: 50%;">{{ optional($laporan->tanggal)->format('d F Y') }}<br>Dibuat oleh:<br><b>Kontraktor Pelaksana</b><br><br><br><br><br><u>___________________________</u><br>{{ $laporan->kontraktor }}</td>
     </tr></table>
 </body>
 </html>

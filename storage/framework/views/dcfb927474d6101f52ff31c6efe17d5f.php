@@ -1,6 +1,6 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
         <h2 class="text-title-md2 font-bold text-black dark:text-white">
@@ -9,7 +9,7 @@
         <p class="text-sm mt-1 text-slate-500 dark:text-slate-400">Detail laporan pekerjaan harian proyek.</p>
     </div>
     
-    <a href="{{ route('verifikasi.index') }}" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+    <a href="<?php echo e(route('verifikasi.index')); ?>" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
         Kembali
     </a>
 </div>
@@ -24,15 +24,15 @@
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</span>
-                    <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ $laporan->tanggal }}</span>
+                    <span class="text-sm font-semibold text-gray-800 dark:text-white"><?php echo e($laporan->tanggal); ?></span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</span>
-                    <span class="inline-flex rounded-full bg-yellow-100 py-1 px-3 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">{{ $laporan->status }}</span>
+                    <span class="inline-flex rounded-full bg-yellow-100 py-1 px-3 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500"><?php echo e($laporan->status); ?></span>
                 </div>
                 <div class="flex flex-col pt-1">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Catatan Laporan</span>
-                    <p class="text-sm text-gray-800 dark:text-gray-300 bg-gray-50 p-3 rounded-lg dark:bg-gray-800/50">{{ $laporan->catatan ?: '-' }}</p>
+                    <p class="text-sm text-gray-800 dark:text-gray-300 bg-gray-50 p-3 rounded-lg dark:bg-gray-800/50"><?php echo e($laporan->catatan ?: '-'); ?></p>
                 </div>
             </div>
         </div>
@@ -47,15 +47,15 @@
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Nama</span>
-                    <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ $laporan->karyawan->nama }}</span>
+                    <span class="text-sm font-semibold text-gray-800 dark:text-white"><?php echo e($laporan->karyawan->nama); ?></span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Jabatan</span>
-                    <span class="text-sm text-gray-800 dark:text-gray-300">{{ $laporan->karyawan->jabatan }}</span>
+                    <span class="text-sm text-gray-800 dark:text-gray-300"><?php echo e($laporan->karyawan->jabatan); ?></span>
                 </div>
                 <div class="flex justify-between pt-1">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">WhatsApp</span>
-                    <a href="https://wa.me/{{ $laporan->karyawan->no_hp }}" target="_blank" class="text-sm font-medium text-green-600 hover:text-green-700 hover:underline dark:text-green-500 dark:hover:text-green-400 ">{{ $laporan->karyawan->no_hp }}</a>
+                    <a href="https://wa.me/<?php echo e($laporan->karyawan->no_hp); ?>" target="_blank" class="text-sm font-medium text-green-600 hover:text-green-700 hover:underline dark:text-green-500 dark:hover:text-green-400 "><?php echo e($laporan->karyawan->no_hp); ?></a>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
     </div>
     <div class="p-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            @foreach([
+            <?php $__currentLoopData = [
                 'Nama Proyek' => $laporan->nama_proyek,
                 'Kegiatan' => $laporan->kegiatan,
                 'Sub Kegiatan' => $laporan->sub_kegiatan,
@@ -79,12 +79,12 @@
                 'Konsultan' => $laporan->konsultan,
                 'PIC' => $laporan->pic,
                 'Minggu Ke' => $laporan->minggu_ke,
-            ] as $k => $v)
+            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="border-b border-gray-100 pb-3 dark:border-gray-800">
-                <span class="block text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 mb-1">{{ $k }}</span>
-                <span class="block text-sm font-medium text-gray-800 dark:text-gray-200">{{ $v ?: '-' }}</span>
+                <span class="block text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 mb-1"><?php echo e($k); ?></span>
+                <span class="block text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo e($v ?: '-'); ?></span>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </div>
@@ -97,13 +97,14 @@
         </div>
         <div class="p-6">
             <ul class="flex flex-col gap-2">
-                @forelse($laporan->pekerjaans as $item)
+                <?php $__empty_1 = true; $__currentLoopData = $laporan->pekerjaans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <li class="rounded-lg bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300">
-                    {{ $item->nama_pekerjaan }}
+                    <?php echo e($item->nama_pekerjaan); ?>
+
                 </li>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <li class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">Tidak ada data pekerjaan.</li>
-                @endforelse
+                <?php endif; ?>
             </ul>
         </div>
     </div>
@@ -114,18 +115,18 @@
         </div>
         <div class="p-6">
             <div class="flex flex-col gap-4">
-                @forelse($laporan->tenagas as $t)
+                <?php $__empty_1 = true; $__currentLoopData = $laporan->tenagas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="grid grid-cols-4 gap-4 text-center">
-                    @foreach(['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana] as $l => $v)
+                    <?php $__currentLoopData = ['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $l => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="rounded-lg bg-blue-50 py-3 px-2 border border-blue-100 dark:border-blue-900/50 dark:bg-blue-900/20">
-                        <span class="block text-xs font-semibold uppercase text-blue-600 dark:text-blue-400 mb-1">{{ $l }}</span>
-                        <span class="block text-xl font-bold text-blue-700 dark:text-blue-300">{{ $v }}</span>
+                        <span class="block text-xs font-semibold uppercase text-blue-600 dark:text-blue-400 mb-1"><?php echo e($l); ?></span>
+                        <span class="block text-xl font-bold text-blue-700 dark:text-blue-300"><?php echo e($v); ?></span>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">Tidak ada data tenaga kerja.</div>
-                @endforelse
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -147,17 +148,17 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-700 dark:text-gray-300">
-                    @forelse($laporan->materials as $m)
+                    <?php $__empty_1 = true; $__currentLoopData = $laporan->materials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr class="border-b border-gray-50 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                        <td class="py-3 px-2">{{ $m->nama_material }}</td>
-                        <td class="py-3 px-2">{{ $m->volume }}</td>
-                        <td class="py-3 px-2">{{ $m->satuan }}</td>
+                        <td class="py-3 px-2"><?php echo e($m->nama_material); ?></td>
+                        <td class="py-3 px-2"><?php echo e($m->volume); ?></td>
+                        <td class="py-3 px-2"><?php echo e($m->satuan); ?></td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="3" class="py-6 text-center text-gray-500 border border-dashed rounded dark:border-gray-700">Tidak ada data material.</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -176,16 +177,16 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-700 dark:text-gray-300">
-                    @forelse($laporan->alats as $alat)
+                    <?php $__empty_1 = true; $__currentLoopData = $laporan->alats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $alat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr class="border-b border-gray-50 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                        <td class="py-3 px-2">{{ $alat->nama_alat }}</td>
-                        <td class="py-3 px-2">{{ $alat->jumlah }}</td>
+                        <td class="py-3 px-2"><?php echo e($alat->nama_alat); ?></td>
+                        <td class="py-3 px-2"><?php echo e($alat->jumlah); ?></td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="2" class="py-6 text-center text-gray-500 border border-dashed rounded dark:border-gray-700">Tidak ada data alat.</td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -199,21 +200,21 @@
     </div>
     <div class="p-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            @forelse($laporan->fotos as $foto)
+            <?php $__empty_1 = true; $__currentLoopData = $laporan->fotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $foto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <div class="group relative rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm aspect-square bg-gray-100 dark:bg-gray-800">
-                <img src="{{ asset('storage/'.$foto->foto) }}" class="object-cover w-full h-full transition group-hover:scale-105" alt="Foto Proyek">
+                <img src="<?php echo e(asset('storage/'.$foto->foto)); ?>" class="object-cover w-full h-full transition group-hover:scale-105" alt="Foto Proyek">
             </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <div class="col-span-full rounded-xl border border-dashed border-gray-300 py-12 text-center dark:border-gray-700">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tidak ada dokumentasi foto.</p>
             </div>
-            @endforelse
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Aksi Verifikasi -->
-@if($laporan->status == 'Menunggu')
+<?php if($laporan->status == 'Menunggu'): ?>
 
 <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 shadow-md">
 
@@ -227,12 +228,12 @@
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start w-full">
 
-            <form action="{{ route('verifikasi.tolak', $laporan->id) }}"
+            <form action="<?php echo e(route('verifikasi.tolak', $laporan->id)); ?>"
                   method="POST"
                   class="flex flex-col sm:flex-row gap-3 w-full">
 
-                @csrf
-                @method('PATCH')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PATCH'); ?>
 
                 <div class="w-full sm:flex-1">
                     <input
@@ -250,11 +251,11 @@
 
             </form>
 
-            <form action="{{ route('verifikasi.setujui', $laporan->id) }}"
+            <form action="<?php echo e(route('verifikasi.setujui', $laporan->id)); ?>"
                   method="POST">
 
-                @csrf
-                @method('PATCH')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PATCH'); ?>
 
                 <button
                     class="rounded-lg bg-green-500 py-3 px-10 text-white hover:bg-green-600">
@@ -269,30 +270,32 @@
 
 </div>
 
-@else
+<?php else: ?>
 
 <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
     <div class="p-6 text-center">
 
-        @if($laporan->status == 'Disetujui')
+        <?php if($laporan->status == 'Disetujui'): ?>
 
             <span class="inline-flex rounded-full bg-green-100 px-4 py-2 font-semibold text-green-700">
                 ✓ Laporan telah disetujui
             </span>
 
-        @else
+        <?php else: ?>
 
             <span class="inline-flex rounded-full bg-red-100 px-4 py-2 font-semibold text-red-700">
                 ✗ Laporan telah ditolak
             </span>
 
-        @endif
+        <?php endif; ?>
 
     </div>
 
 </div>
 
-@endif
+<?php endif; ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/verifikasi/show.blade.php ENDPATH**/ ?>

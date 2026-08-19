@@ -212,4 +212,5 @@
 
     </div>
   </div>
-</header><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/layouts/navbar.blade.php ENDPATH**/ ?>
+</header>
+<?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/layouts/navbar.blade.php ENDPATH**/ ?>

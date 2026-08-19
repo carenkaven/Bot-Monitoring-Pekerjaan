@@ -1,10 +1,8 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
     <div class="space-y-6">
 
-        {{-- Header --}}
+        
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
             <div>
@@ -19,29 +17,30 @@
 
             </div>
 
-            <a href="{{ route('karyawan.create') }}"
+            <a href="<?php echo e(route('karyawan.create')); ?>"
                 class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition">
                 + Tambah Karyawan
             </a>
 
         </div>
 
-        {{-- Alert Success --}}
-        @if(session('success'))
+        
+        <?php if(session('success')): ?>
 
             <div class="bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-xl">
 
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
 
             </div>
 
-        @endif
+        <?php endif; ?>
 
-        {{-- Card --}}
+        
         <div
             class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-transparent dark:border-slate-700/50 overflow-hidden">
 
-            {{-- Header Card --}}
+            
             <div
                 class="p-6 border-b border-gray-100 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
@@ -53,7 +52,7 @@
 
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Total :
-                        <b class="text-slate-800 dark:text-white">{{ $karyawans->total() }}</b>
+                        <b class="text-slate-800 dark:text-white"><?php echo e($karyawans->total()); ?></b>
                         Karyawan
                     </p>
 
@@ -71,7 +70,7 @@
 
             </div>
 
-            {{-- Table --}}
+            
             <div class="max-w-full overflow-x-auto">
                 <table class="w-full table-auto" id="tableKaryawan">
                     <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700/50">
@@ -85,42 +84,48 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700/50">
-                        @forelse($karyawans as $item)
+                        <?php $__empty_1 = true; $__currentLoopData = $karyawans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/20 transition duration-200">
 
                                 <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
-                                    {{ $loop->iteration }}
+                                    <?php echo e($loop->iteration); ?>
+
                                 </td>
 
                                 <td class="px-6 py-4 text-sm">
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold uppercase text-sm shadow-sm ring-2 ring-white dark:ring-slate-800">
-                                            {{ substr(trim($item->nama ?? ($item->user->name ?? '?')), 0, 2) }}
+                                            <?php echo e(substr(trim($item->nama ?? ($item->user->name ?? '?')), 0, 2)); ?>
+
                                         </div>
                                         <div>
                                             <div class="font-bold text-slate-800 dark:text-white">
-                                                {{ $item->nama ?? ($item->user->name ?? 'Tanpa Nama') }}
+                                                <?php echo e($item->nama ?? ($item->user->name ?? 'Tanpa Nama')); ?>
+
                                             </div>
                                             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                                                {{ $item->email ? $item->email : 'Email tidak ditautkan' }}
+                                                <?php echo e($item->email ? $item->email : 'Email tidak ditautkan'); ?>
+
                                             </div>
                                         </div>
                                     </div>
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">
-                                    {{ $item->jabatan }}
+                                    <?php echo e($item->jabatan); ?>
+
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
-                                    {{ $item->no_hp }}
+                                    <?php echo e($item->no_hp); ?>
+
                                 </td>
 
                                 <td class="px-6 py-4 text-center text-sm font-medium">
 
-                                    @if($item->status == 'aktif')
+                                    <?php if($item->status == 'aktif'): ?>
 
                                         <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
 
@@ -128,7 +133,7 @@
 
                                         </span>
 
-                                    @elseif($item->status == 'pending')
+                                    <?php elseif($item->status == 'pending'): ?>
 
                                         <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
 
@@ -136,7 +141,7 @@
 
                                         </span>
 
-                                    @elseif($item->status == 'ditolak')
+                                    <?php elseif($item->status == 'ditolak'): ?>
 
                                         <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
 
@@ -144,7 +149,7 @@
 
                                         </span>
 
-                                    @else
+                                    <?php else: ?>
 
                                         <span class="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-sm">
 
@@ -152,7 +157,7 @@
 
                                         </span>
 
-                                    @endif
+                                    <?php endif; ?>
 
                                 </td>
 
@@ -160,12 +165,12 @@
 
                                     <div class="flex justify-center gap-2 flex-wrap min-w-[120px]">
 
-                                        @if($item->status == 'pending')
+                                        <?php if($item->status == 'pending'): ?>
 
-                                            <form action="{{ route('karyawan.approve', $item->id) }}" method="POST" class="inline">
+                                            <form action="<?php echo e(route('karyawan.approve', $item->id)); ?>" method="POST" class="inline">
 
-                                                @csrf
-                                                @method('PATCH')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
 
                                                 <button
                                                     class="inline-flex rounded-lg bg-green-50 dark:bg-green-500/10 py-1.5 px-3 text-xs font-bold text-green-600 hover:bg-green-500 hover:text-white transition shadow-sm border border-green-200 dark:border-green-500/20">
@@ -176,11 +181,11 @@
 
                                             </form>
 
-                                            <form action="{{ route('karyawan.reject', $item->id) }}" method="POST" class="inline"
+                                            <form action="<?php echo e(route('karyawan.reject', $item->id)); ?>" method="POST" class="inline"
                                                 onsubmit="confirmFormSubmit(event, 'Tolak pendaftaran karyawan ini?', this)">
 
-                                                @csrf
-                                                @method('PATCH')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
 
                                                 <button
                                                     class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 py-1.5 px-3 text-xs font-bold text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
@@ -191,14 +196,14 @@
 
                                             </form>
 
-                                        @endif
+                                        <?php endif; ?>
 
-                                        @if($item->status == 'aktif')
+                                        <?php if($item->status == 'aktif'): ?>
 
-                                            <form action="{{ route('karyawan.nonaktif', $item->id) }}" method="POST" class="inline">
+                                            <form action="<?php echo e(route('karyawan.nonaktif', $item->id)); ?>" method="POST" class="inline">
 
-                                                @csrf
-                                                @method('PATCH')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
 
                                                 <button
                                                     class="inline-flex rounded-lg bg-orange-50 dark:bg-orange-500/10 py-1.5 px-3 text-xs font-bold text-orange-600 hover:bg-orange-500 hover:text-white transition shadow-sm border border-orange-200 dark:border-orange-500/20">
@@ -209,20 +214,20 @@
 
                                             </form>
 
-                                        @endif
+                                        <?php endif; ?>
 
-                                        <a href="{{ route('karyawan.edit', $item->id) }}"
+                                        <a href="<?php echo e(route('karyawan.edit', $item->id)); ?>"
                                             class="inline-flex rounded-lg bg-blue-50 dark:bg-blue-500/10 py-1.5 px-3 text-xs font-bold text-blue-600 hover:bg-blue-500 hover:text-white transition shadow-sm border border-blue-200 dark:border-blue-500/20">
 
                                             Edit
 
                                         </a>
 
-                                        <form action="{{ route('karyawan.destroy', $item->id) }}" method="POST" class="inline"
+                                        <form action="<?php echo e(route('karyawan.destroy', $item->id)); ?>" method="POST" class="inline"
                                             onsubmit="confirmFormSubmit(event, 'Yakin ingin menghapus data ini?', this)">
 
-                                            @csrf
-                                            @method('DELETE')
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
 
                                             <button
                                                 class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 py-1.5 px-3 text-xs font-bold text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
@@ -239,7 +244,7 @@
 
                             </tr>
 
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
                             <tr>
 
@@ -251,14 +256,15 @@
 
                             </tr>
 
-                        @endforelse
+                        <?php endif; ?>
                 </table>
 
             </div>
 
             <div class="p-6">
 
-                {{ $karyawans->links() }}
+                <?php echo e($karyawans->links()); ?>
+
 
             </div>
 
@@ -286,4 +292,5 @@
 
     </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/master/karyawan/index.blade.php ENDPATH**/ ?>
