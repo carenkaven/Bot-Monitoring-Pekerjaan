@@ -13,11 +13,9 @@
         <a href="<?php echo e(route('laporan.index')); ?>" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
             Kembali
         </a>
-        <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '<?php echo e(route('pdf.harian', $laporan)); ?>', '<?php echo e(route('excel.harian', $laporan)); ?>')" class="inline-flex items-center justify-center rounded-md bg-red-500 py-2.5 px-6 font-medium text-white hover:bg-red-600 transition">
-            Laporan Harian Lama
-        </button>
-        <button type="button" onclick="pilihFormatLaporan('Laporan Harian Baru', '<?php echo e(route('pdf.harian.baru', $laporan)); ?>', '<?php echo e(route('excel.harian.baru', $laporan)); ?>')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
-            Laporan Harian Baru
+        
+        <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '<?php echo e(route('pdf.harian.baru', $laporan)); ?>', '<?php echo e(route('excel.harian.baru', $laporan)); ?>')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
+            Cetak Laporan Harian
         </button>
         <?php if($laporan->status==='Menunggu'): ?>
         <a href="<?php echo e(route('verifikasi.show', $laporan)); ?>" class="inline-flex items-center justify-center rounded-md bg-green-500 py-2.5 px-6 font-medium text-white hover:bg-green-600 transition">
@@ -129,16 +127,37 @@
                 <h3 class="font-bold text-gray-800 dark:text-white">Tenaga Kerja</h3>
             </div>
             <div class="p-6">
-                <?php $__empty_1 = true; $__currentLoopData = $laporan->tenagas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                    <?php $__currentLoopData = ['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $l => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="rounded-xl border border-blue-200 bg-blue-50 py-4 px-2 dark:border-blue-900 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                        <span class="block text-xs font-semibold uppercase mb-1"><?php echo e($l); ?></span>
-                        <span class="block text-2xl font-bold"><?php echo e($v); ?></span>
-                    </div>
+                <?php if($laporan->tenagas->isNotEmpty()): ?>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <?php $__currentLoopData = $laporan->tenagas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($t->jenis_tenaga): ?>
+                            <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                                <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight"><?php echo e($t->jenis_tenaga); ?></span>
+                                <span class="mt-2 text-2xl font-bold leading-none"><?php echo e($t->jumlah); ?></span>
+                                <span class="mt-1 text-[10px] font-medium uppercase text-blue-400"><?php echo e($t->satuan ?: 'org'); ?></span>
+                            </div>
+                        <?php else: ?>
+                            <?php
+                                $fallback = [
+                                    'Pekerja' => $t->pekerja,
+                                    'Tukang' => $t->tukang,
+                                    'Mandor' => $t->mandor,
+                                    'Pelaksana' => $t->pelaksana
+                                ];
+                            ?>
+                            <?php $__currentLoopData = $fallback; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $label => $jumlah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if((int)$jumlah > 0): ?>
+                                    <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                                        <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight"><?php echo e($label); ?></span>
+                                        <span class="mt-2 text-2xl font-bold leading-none"><?php echo e($jumlah); ?></span>
+                                        <span class="mt-1 text-[10px] font-medium uppercase text-blue-400">org</span>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endif; ?>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <?php else: ?>
                 <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Tidak ada data tenaga kerja.</p>
                 <?php endif; ?>
             </div>

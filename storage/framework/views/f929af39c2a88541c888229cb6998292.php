@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: A4 portrait; margin: 9px; }
+        @page { size: A4 portrait; margin: 25px; }
         body { font-family: Arial, sans-serif; font-size: 6px; color: #000; }
         table { width: 100%; border-collapse: collapse; }
         .border td, .border th, .grid td, .grid th { border: 1px solid #000; }
@@ -11,51 +11,74 @@
         .header { background: #d9d9d9; text-align: center; font-weight: bold; }
         .center { text-align: center; vertical-align: middle; }
         .top { vertical-align: top; }
-        .photo { width: 31%; height: 48px; object-fit: contain; margin: 1%; }
+        .photo { width: 100px; height: 75px; object-fit: cover; }
         .sign td { text-align: center; vertical-align: bottom; height: 38px; }
+        .no-border td { border: none !important; padding: 0 2px; }
     </style>
 </head>
 <body>
     <table class="border">
         <tr><td class="header" style="height: 14px; font-size: 10px;">LAPORAN HARIAN</td></tr>
         <tr><td style="padding: 3px; height: 43px;">
-            <b>Pekerjaan</b> : <?php echo e($laporan->pekerjaan); ?><br>
-            <b>Lokasi</b> : <?php echo e($laporan->lokasi); ?><br>
-            <b>Tahun Anggaran</b> : <?php echo e(optional($laporan->tanggal)->format('Y')); ?><br>
-            <b>Minggu Ke</b> : <?php echo e($laporan->minggu_ke); ?><br>
-            <b>Periode</b> : <?php echo e(optional($laporan->tanggal)->format('d F Y')); ?><br>
-            <b>Tanggal</b> : <?php echo e(optional($laporan->tanggal)->format('d F Y')); ?>
-
+            <table class="no-border" style="width: 100%;">
+                <tr><td style="width: 80px;"><b>Pekerjaan</b></td><td style="width: 10px;">:</td><td><?php echo e($laporan->pekerjaan); ?></td></tr>
+                <tr><td><b>Lokasi</b></td><td>:</td><td><?php echo e($laporan->lokasi); ?></td></tr>
+                <tr><td><b>Tahun Anggaran</b></td><td>:</td><td><?php echo e(optional($laporan->tanggal)->format('Y')); ?></td></tr>
+                <tr><td><b>Minggu Ke</b></td><td>:</td><td><?php echo e($laporan->minggu_ke); ?></td></tr>
+                <tr><td><b>Periode</b></td><td>:</td><td><?php echo e(optional($laporan->tanggal)->format('d F Y')); ?></td></tr>
+                <tr><td><b>Tanggal</b></td><td>:</td><td><?php echo e(optional($laporan->tanggal)->format('d F Y')); ?></td></tr>
+            </table>
         </td></tr>
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="2">PEKERJAAN YANG DILAKUKAN</th></tr>
-        <?php ($pekerjaanItems = $laporan->pekerjaans->pluck('nama_pekerjaan')->prepend($laporan->pekerjaan)->filter()->unique()->values()); ?>
-        <?php for($i = 0; $i < 10; $i++): ?>
+        <?php
+            $pekerjaanItems = $laporan->pekerjaans->pluck('nama_pekerjaan')->prepend($laporan->pekerjaan)->filter()->unique()->values();
+            $totalBarisTenagaAlat = max(10, $laporan->tenagas->count(), $laporan->alats->count());
+        ?>
+        <?php for($i = 0; $i < $totalBarisTenagaAlat; $i++): ?>
             <tr><td class="center" style="width: 5%;"><?php echo e($i + 1); ?></td><td><?php echo e($pekerjaanItems[$i] ?? ''); ?></td></tr>
         <?php endfor; ?>
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="7">BAHAN / MATERIAL</th></tr>
         <tr><th>NO.</th><th>NAMA BAHAN</th><th>VOL.</th><th>SAT.</th><th colspan="2">STATUS</th><th>KETERANGAN</th></tr>
         <?php for($i = 0; $i < 11; $i++): ?>
-            <?php ($material = $laporan->materials[$i] ?? null); ?>
+            <?php
+                $material = $laporan->materials->values()->get($i);
+            ?>
             <tr><td class="center"><?php echo e($i + 1); ?></td><td><?php echo e($material->nama_material ?? ''); ?></td><td class="center"><?php echo e($material->volume ?? ''); ?></td><td class="center"><?php echo e($material->satuan ?? ''); ?></td><td></td><td></td><td></td></tr>
         <?php endfor; ?>
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="4">TENAGA KERJA</th><th class="header" colspan="4">ALAT</th></tr>
         <tr><th>NO.</th><th>MACAM TENAGA KERJA</th><th>JUMLAH</th><th>SAT.</th><th>NO.</th><th>NAMA ALAT</th><th>JUMLAH</th><th>SATUAN</th></tr>
-        <?php for($i = 0; $i < 10; $i++): ?>
-            <?php ($tenaga = $laporan->tenagas[$i] ?? null); ?>
-            <?php ($alat = $laporan->alats[$i] ?? null); ?>
-            <tr><td class="center"><?php echo e($i + 1); ?></td><td><?php echo e($tenaga ? 'Pekerja' : ''); ?></td><td class="center"><?php echo e($tenaga->pekerja ?? ''); ?></td><td class="center"><?php echo e($tenaga ? 'org' : ''); ?></td><td class="center"><?php echo e($i + 1); ?></td><td><?php echo e($alat->nama_alat ?? ''); ?></td><td class="center"><?php echo e($alat->jumlah ?? ''); ?></td><td class="center"><?php echo e($alat ? 'unit' : ''); ?></td></tr>
+        <?php
+            $tenagaList = [];
+            foreach ($laporan->tenagas as $t) {
+                if ($t->jenis_tenaga) {
+                    $tenagaList[] = ['jenis' => $t->jenis_tenaga, 'jumlah' => $t->jumlah, 'satuan' => $t->satuan ?? 'org'];
+                } else {
+                    if ($t->pekerja !== null) $tenagaList[] = ['jenis' => 'Pekerja', 'jumlah' => $t->pekerja, 'satuan' => 'org'];
+                    if ($t->tukang !== null) $tenagaList[] = ['jenis' => 'Tukang', 'jumlah' => $t->tukang, 'satuan' => 'org'];
+                    if ($t->mandor !== null) $tenagaList[] = ['jenis' => 'Mandor', 'jumlah' => $t->mandor, 'satuan' => 'org'];
+                    if ($t->pelaksana !== null) $tenagaList[] = ['jenis' => 'Pelaksana lapangan', 'jumlah' => $t->pelaksana, 'satuan' => 'org'];
+                }
+            }
+            $totalBarisTenagaAlat = max(10, count($tenagaList), $laporan->alats->count());
+        ?>
+        <?php for($i = 0; $i < $totalBarisTenagaAlat; $i++): ?>
+            <?php
+                $tenaga = $tenagaList[$i] ?? null;
+                $alat = $laporan->alats[$i] ?? null;
+            ?>
+            <tr><td class="center"><?php echo e($i + 1); ?></td><td><?php echo e($tenaga['jenis'] ?? ''); ?></td><td class="center"><?php echo e($tenaga['jumlah'] ?? ''); ?></td><td class="center"><?php echo e(isset($tenaga) ? $tenaga['satuan'] : ''); ?></td><td class="center"><?php echo e($i + 1); ?></td><td><?php echo e($alat->nama_alat ?? ''); ?></td><td class="center"><?php echo e($alat->jumlah ?? ''); ?></td><td class="center"><?php echo e($alat ? 'unit' : ''); ?></td></tr>
         <?php endfor; ?>
     </table>
     <br>
@@ -65,32 +88,70 @@
             <td class="top" style="width: 55%; padding-right: 8px;">
                 <table class="grid">
                     <tr><th colspan="3">WAKTU</th><th colspan="2">JAM KERJA</th><th colspan="2">CUACA</th></tr>
+                    <?php
+                        $patKerja = 'file:///' . str_replace('\\', '/', public_path('images/pat_kerja.png'));
+                        $patIstirahat = 'file:///' . str_replace('\\', '/', public_path('images/pat_istirahat.png'));
+                        $patHujan = 'file:///' . str_replace('\\', '/', public_path('images/pat_hujan.png'));
+                        
+                        $startHour = $laporan->jam_mulai ? (int) substr($laporan->jam_mulai, 0, 2) : null;
+                        $endHour = $laporan->jam_selesai ? (int) substr($laporan->jam_selesai, 0, 2) : null;
+                        $cuacaStr = strtolower($laporan->cuaca ?? '');
+                        
+                        $cuacaStyle = 'background-color: #ffffff;';
+                        if (str_contains($cuacaStr, 'gerimis')) {
+                            $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+                        } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
+                            $cuacaStyle = "background-color: #d9d9d9; background-image: url('$patHujan'); background-repeat: repeat;";
+                        } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
+                            $cuacaStyle = "background-color: #ffffff;";
+                        }
+                    ?>
                     <?php for($h = 0; $h < 24; $h++): ?>
-                        <tr><td colspan="3" class="center"><?php echo e(sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24)); ?></td><td colspan="2" class="center"><?php echo e($h === 0 ? (($laporan->jam_mulai ?? '-') . ' - ' . ($laporan->jam_selesai ?? '-')) : ''); ?></td><td colspan="2" class="center"><?php echo e($h === 0 ? ($laporan->cuaca ?? '-') : ''); ?></td></tr>
+                        <?php
+                            $jamStyle = 'background-color: #ffffff;';
+                            if ($startHour !== null && $endHour !== null) {
+                                if ($h >= $startHour && $h < $endHour) {
+                                    $jamStyle = ($h == 12) ? "background-color: #d9d9d9; background-image: url('$patIstirahat'); background-repeat: repeat;" : "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
+                                }
+                            }
+                            $cellCuacaStyle = ($jamStyle !== 'background-color: #ffffff;') ? $cuacaStyle : 'background-color: #ffffff;';
+                        ?>
+                        <tr>
+                            <td colspan="3" class="center"><?php echo e(sprintf('%02d.00 - %02d.00', $h, ($h + 1) % 24)); ?></td>
+                            <td colspan="2" style="<?php echo e($jamStyle); ?>"></td>
+                            <td colspan="2" style="<?php echo e($cellCuacaStyle); ?>"></td>
+                        </tr>
                     <?php endfor; ?>
                 </table>
             </td>
             <td class="top" style="width: 45%; padding-left: 8px;">
-                <table class="grid">
-                    <tr><th colspan="2">Notasi Jam Kerja</th></tr>
-                    <tr><td style="height: 8px;"></td><td>Kerja</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Istirahat</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Tidak bekerja</td></tr>
+                <table style="border-collapse: collapse;">
+                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Jam Kerja :</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('<?php echo e($patKerja); ?>'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Kerja</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('<?php echo e($patIstirahat); ?>'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Istirahat</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Tidak bekerja</td></tr>
                 </table>
                 <br>
-                <table class="grid">
-                    <tr><th colspan="2">Notasi Cuaca</th></tr>
-                    <tr><td style="height: 8px;"></td><td>Gerimis</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Hujan Deras</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Cerah</td></tr>
-                    <tr><td style="height: 8px;"></td><td>Berawan/Mendung</td></tr>
+                <table style="border-collapse: collapse;">
+                    <tr><td colspan="2" style="font-weight:bold; padding-bottom:5px;">Notasi Cuaca :</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #808080; background-image: url('<?php echo e($patKerja); ?>'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Gerimis</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #d9d9d9; background-image: url('<?php echo e($patHujan); ?>'); background-repeat: repeat; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Hujan Deras</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Cerah</td></tr>
+                    <tr><td style="height: 10px; width: 25px; background-color: #ffffff; border: 1px solid #000;"></td><td style="padding-left: 5px; vertical-align:middle;">Berawan/Mendung</td></tr>
                 </table>
                 <br>
-                <table class="border"><tr><td class="header">FOTO DOKUMENTASI</td></tr><tr><td class="center" style="height: 155px;">
-                    <?php $__empty_1 = true; $__currentLoopData = $laporan->fotos->take(3); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $foto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <?php ($path = public_path('storage/' . $foto->foto)); ?>
-                        <?php if(file_exists($path)): ?><img class="photo" src="<?php echo e($path); ?>"><?php else: ?><span class="photo">FOTO TIDAK DITEMUKAN</span><?php endif; ?>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <table class="border"><tr><td class="header">FOTO DOKUMENTASI</td></tr><tr><td class="center" style="height: 155px; padding: 4px;">
+                    <?php if(count($fotoDokumentasi) > 0): ?>
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <?php $__currentLoopData = $fotoDokumentasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $src): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <td style="width:33.33%; border:0; padding:2px; text-align:center; vertical-align:middle;">
+                                        <img class="photo" src="<?php echo e($src); ?>" width="100" height="75" alt="Foto dokumentasi">
+                                    </td>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </tr>
+                        </table>
+                    <?php else: ?>
                         Belum ada foto dokumentasi
                     <?php endif; ?>
                 </td></tr></table>

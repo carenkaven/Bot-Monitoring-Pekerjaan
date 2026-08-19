@@ -1,2 +1,0 @@
-
-<?php echo $__env->make('laporan.create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views\laporan\edit.blade.php ENDPATH**/ ?>
