@@ -4,30 +4,46 @@
 
     <div class="space-y-6">
 
+        @php
+            $monthsList = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $monthName = $monthsList[(int)$month] ?? '';
+        @endphp
+
         {{-- HEADER --}}
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
                 <h2 class="text-title-md2 font-bold text-black dark:text-white">
-                    Detail Laporan Mingguan
+                    Laporan Minggu Ke-{{ $summary['minggu_ke'] }} (Bulan {{ $monthName }} {{ $year }})
                 </h2>
                 <p class="text-sm mt-1 text-slate-500 dark:text-slate-400">
-                    Proyek: <span class="font-semibold text-black dark:text-white">{{ $summary['nama_proyek'] }}</span>
+                    @if($summary['nama_proyek'] === 'all')
+                        Menampilkan laporan dari <span class="font-semibold text-black dark:text-white">semua proyek</span>
+                    @else
+                        Proyek: <span class="font-semibold text-black dark:text-white">{{ $summary['nama_proyek'] }}</span>
+                    @endif
                 </p>
             </div>
 
-            <div>
-                <div class="flex flex-wrap gap-2 mb-2">
-                    <button type="button" onclick="pilihFormatLaporan('Laporan Mingguan Lama', '{{ route('pdf.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}', '{{ route('excel.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}')" class="inline-flex items-center justify-center rounded-md bg-red-600 py-2.5 px-5 font-medium text-white hover:bg-red-700 transition">Laporan Mingguan Lama</button>
-                    <button type="button" onclick="pilihFormatLaporan('Laporan Mingguan Baru', '{{ route('pdf.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}', '{{ route('excel.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek']]) }}')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-5 font-medium text-white hover:bg-orange-700 transition">Laporan Mingguan Baru</button>
-                </div>
+            <div class="flex flex-wrap items-center justify-end gap-3 mt-4 sm:mt-0">
                 <a href="{{ route('weekly.index') }}"
-                    class="inline-flex items-center justify-center gap-2.5 rounded-md bg-slate-600 py-2.5 px-6 text-center font-medium text-white hover:bg-opacity-90 dark:bg-slate-700 transition">
+                    class="inline-flex items-center justify-center rounded-md border border-stroke py-2.5 px-5 text-center font-medium hover:bg-gray dark:border-strokedark dark:hover:bg-meta-4 transition">
                     ← Kembali
                 </a>
+
+                @if($summary['nama_proyek'] !== 'all')
+                    <button type="button" onclick="pilihJenisLaporanMingguan('{{ route('pdf.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek'], 'year' => $year, 'month' => $month]) }}', '{{ route('excel.weekly', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek'], 'year' => $year, 'month' => $month]) }}', '{{ route('pdf.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek'], 'year' => $year, 'month' => $month]) }}', '{{ route('excel.weekly.physical', ['minggu' => $summary['minggu_ke'], 'proyek' => $summary['nama_proyek'], 'year' => $year, 'month' => $month]) }}')" class="inline-flex items-center justify-center rounded-md bg-blue-600 py-2.5 px-5 text-sm font-medium text-white hover:bg-blue-700 transition">Cetak Mingguan</button>
+                @else
+                    <button type="button" onclick="cetakDariSemuaProyek({{ $summary['minggu_ke'] }})" class="inline-flex items-center justify-center rounded-md bg-blue-600 py-2.5 px-5 text-sm font-medium text-white hover:bg-blue-700 transition">Cetak Mingguan</button>
+                @endif
             </div>
         </div>
 
         {{-- INFORMASI --}}
+        @if($summary['nama_proyek'] !== 'all')
         <div class="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                 <div>
@@ -95,6 +111,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- STATISTIK --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -136,6 +153,7 @@
         </div>
 
         {{-- REKAP ITEM PEKERJAAN --}}
+        @if($summary['nama_proyek'] !== 'all')
         <div
             class="rounded-xl border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
             <h4 class="mb-4 text-title-sm font-bold text-black dark:text-white">Rekap Item Pekerjaan (Sesuai PDF Laporan Fisik)</h4>
@@ -171,27 +189,44 @@
                 </table>
             </div>
         </div>
+        @endif
 
         {{-- TABEL HARIAN --}}
         <div
             class="rounded-xl border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5">
-            <h4 class="mb-4 text-title-sm font-bold text-black dark:text-white">Daftar Kemajuan Harian</h4>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                <h4 class="text-title-sm font-bold text-black dark:text-white">Daftar Kemajuan Harian</h4>
+                <div class="mt-3 sm:mt-0 relative w-full sm:w-64">
+                    <input type="text" id="searchInput" placeholder="Cari tanggal, proyek..." class="w-full rounded border border-stroke bg-transparent py-2 pl-10 pr-4 outline-none focus:border-blue-500 dark:border-form-strokedark dark:bg-form-input dark:focus:border-blue-500 text-black dark:text-white transition">
+                    <span class="absolute left-3 top-2.5 text-slate-400">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
             <div class="max-w-full overflow-x-auto pb-4">
-                <table class="w-full table-auto">
+                <table class="w-full table-auto" id="tabelHarian">
                     <thead class="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
                         <tr class="text-left text-sm font-semibold text-black dark:text-white">
-                            <th class="min-w-[120px] py-4 px-4 font-medium">Tanggal</th>
-                            <th class="min-w-[250px] py-4 px-4 font-medium">Pekerjaan</th>
-                            <th class="py-4 px-4 font-medium text-center">Status</th>
+                            <th class="min-w-[120px] py-4 px-4 font-medium cursor-pointer hover:bg-gray-200 dark:hover:bg-meta-4/80 transition group sortable" title="Urutkan berdasarkan Tanggal">Tanggal <span class="inline-block ml-1 opacity-0 group-hover:opacity-100 transition sort-icon">⇅</span></th>
+                            <th class="min-w-[150px] py-4 px-4 font-medium cursor-pointer hover:bg-gray-200 dark:hover:bg-meta-4/80 transition group sortable" title="Urutkan berdasarkan Proyek">Proyek <span class="inline-block ml-1 opacity-0 group-hover:opacity-100 transition sort-icon">⇅</span></th>
+                            <th class="min-w-[250px] py-4 px-4 font-medium cursor-pointer hover:bg-gray-200 dark:hover:bg-meta-4/80 transition group sortable" title="Urutkan berdasarkan Pekerjaan">Pekerjaan <span class="inline-block ml-1 opacity-0 group-hover:opacity-100 transition sort-icon">⇅</span></th>
+                            <th class="py-4 px-4 font-medium text-center cursor-pointer hover:bg-gray-200 dark:hover:bg-meta-4/80 transition group sortable" title="Urutkan berdasarkan Status">Status <span class="inline-block ml-1 opacity-0 group-hover:opacity-100 transition sort-icon">⇅</span></th>
                             <th class="py-4 px-4 font-medium text-center">Foto</th>
-                            <th class="py-4 px-4 font-medium text-center lg:min-w-[100px]">Aksi</th>
+                            @if($summary['nama_proyek'] === 'all')
+                                <th class="py-4 px-4 font-medium text-center lg:min-w-[100px]">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-stroke dark:divide-strokedark">
+                    <tbody class="divide-y divide-stroke dark:divide-strokedark" id="tableBody">
                         @forelse($laporans as $laporan)
                             <tr class="hover:bg-gray-50 dark:hover:bg-meta-4/50 transition">
                                 <td class="py-4 px-4 text-sm font-medium text-black dark:text-white">
                                     {{ $laporan->tanggal->format('d M Y') }}
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-800 dark:text-gray-200">
+                                    {{ $laporan->nama_proyek }}
                                 </td>
                                 <td class="py-4 px-4 text-sm text-gray-800 dark:text-gray-200">
                                     {{ Str::limit($laporan->pekerjaan, 60) }}
@@ -220,16 +255,17 @@
                                         {{ $laporan->fotos->count() }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-4 text-center">
-                                    <a href="{{ route('pdf.harian', $laporan->id) }}" target="_blank"
-                                        class="inline-flex rounded-lg bg-red-500/10 py-1.5 px-4 text-sm font-medium text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500 dark:hover:text-white transition">PDF</a>
-                                    <a href="{{ route('excel.harian', $laporan->id) }}"
-                                        class="inline-flex rounded-lg bg-green-500/10 py-1.5 px-4 text-sm font-medium text-green-600 hover:bg-green-500 hover:text-white dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500 dark:hover:text-white transition">Excel</a>
+                                @if($summary['nama_proyek'] === 'all')
+                                <td class="py-4 px-4 text-center align-middle">
+                                    <div class="flex flex-col gap-1.5">
+                                        <a href="{{ route('laporan.show', $laporan->id) }}" class="w-full inline-flex justify-center items-center rounded bg-blue-50 py-1.5 px-2 text-xs font-medium text-blue-600 hover:bg-blue-500 hover:text-white dark:bg-blue-500/10 dark:text-blue-400 transition">Detail</a>
+                                    </div>
                                 </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-10 text-gray-500 dark:text-gray-400">Belum ada laporan
+                                <td colspan="{{ $summary['nama_proyek'] === 'all' ? '6' : '5' }}" class="text-center py-10 text-gray-500 dark:text-gray-400">Belum ada laporan
                                     harian pada minggu ini.</td>
                             </tr>
                         @endforelse
@@ -240,4 +276,118 @@
 
     </div>
 
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('tableBody');
+        const headers = document.querySelectorAll('th.sortable');
+        
+        if(!tableBody) return;
+
+        // --- Fitur Pencarian ---
+        if(searchInput) {
+            searchInput.addEventListener('keyup', function () {
+                const filter = searchInput.value.toLowerCase();
+                const rows = tableBody.getElementsByTagName('tr');
+                for (let i = 0; i < rows.length; i++) {
+                    // Hanya sembunyikan baris yang memiliki class hover:bg-gray-50 (mengabaikan baris "Belum ada laporan")
+                    if(!rows[i].classList.contains('hover:bg-gray-50')) continue;
+                    const rowText = rows[i].textContent.toLowerCase();
+                    if (rowText.includes(filter)) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // --- Fitur Sorting ---
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const table = header.closest('table');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr.hover\\:bg-gray-50'));
+                
+                // Cari index kolom
+                const index = Array.from(header.parentElement.children).indexOf(header);
+                
+                // Tentukan arah sorting (Ascending / Descending)
+                const isAsc = header.classList.contains('asc');
+                const direction = isAsc ? -1 : 1;
+                
+                // Reset semua icon
+                headers.forEach(h => { 
+                    h.classList.remove('asc', 'desc'); 
+                    h.querySelector('.sort-icon').textContent = '⇅';
+                    h.querySelector('.sort-icon').classList.remove('opacity-100', 'text-blue-600', 'dark:text-blue-400');
+                });
+                
+                // Set arah yang baru
+                header.classList.add(isAsc ? 'desc' : 'asc');
+                header.querySelector('.sort-icon').textContent = isAsc ? '↓' : '↑';
+                header.querySelector('.sort-icon').classList.add('opacity-100', 'text-blue-600', 'dark:text-blue-400');
+
+                rows.sort((a, b) => {
+                    const aColText = a.children[index].textContent.trim();
+                    const bColText = b.children[index].textContent.trim();
+                    
+                    // Deteksi jika format tanggal DD MMM YYYY (misal: 10 Aug 2026)
+                    const dateA = new Date(aColText);
+                    const dateB = new Date(bColText);
+                    if(!isNaN(dateA) && !isNaN(dateB) && aColText.match(/^\d{2} [A-Za-z]{3} \d{4}$/)) {
+                        return direction * (dateA - dateB);
+                    }
+                    
+                    return direction * aColText.localeCompare(bColText);
+                });
+
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+    });
+</script>
+
+<script>
+    async function cetakDariSemuaProyek(minggu) {
+        const proyeks = {!! json_encode($proyeks) !!};
+        let inputOptions = {};
+        
+        // Cek jika tidak ada proyek
+        if (!proyeks || proyeks.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Kosong',
+                text: 'Tidak ada proyek pada minggu ini.'
+            });
+            return;
+        }
+
+        proyeks.forEach(p => { inputOptions[p] = p; });
+
+        const { value: proyek } = await Swal.fire({
+            title: 'Pilih Proyek',
+            text: `Pilih proyek mana yang ingin dicetak (Laporan Minggu ${minggu})`,
+            input: 'select',
+            inputOptions: inputOptions,
+            inputPlaceholder: 'Pilih Proyek...',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Selanjutnya',
+            cancelButtonText: 'Batal'
+        });
+
+        if (proyek) {
+            const urlLamaPdf = `{{ url('pdf/weekly') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlLamaExcel = `{{ url('excel/weekly') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlBaruPdf = `{{ url('pdf/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlBaruExcel = `{{ url('excel/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            
+            pilihJenisLaporanMingguan(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel);
+        }
+    }
+</script>
+@endpush
 @endsection

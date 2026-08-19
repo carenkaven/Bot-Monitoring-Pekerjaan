@@ -14,11 +14,13 @@
         <a href="{{ route('laporan.index') }}" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
             Kembali
         </a>
+        {{-- [DISEMBUNYIKAN SEMENTARA - JANGAN DIHAPUS]
         <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '{{ route('pdf.harian', $laporan) }}', '{{ route('excel.harian', $laporan) }}')" class="inline-flex items-center justify-center rounded-md bg-red-500 py-2.5 px-6 font-medium text-white hover:bg-red-600 transition">
             Laporan Harian Lama
         </button>
-        <button type="button" onclick="pilihFormatLaporan('Laporan Harian Baru', '{{ route('pdf.harian.baru', $laporan) }}', '{{ route('excel.harian.baru', $laporan) }}')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
-            Laporan Harian Baru
+        --}}
+        <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '{{ route('pdf.harian.baru', $laporan) }}', '{{ route('excel.harian.baru', $laporan) }}')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
+            Cetak Laporan Harian
         </button>
         @if($laporan->status==='Menunggu')
         <a href="{{ route('verifikasi.show', $laporan) }}" class="inline-flex items-center justify-center rounded-md bg-green-500 py-2.5 px-6 font-medium text-white hover:bg-green-600 transition">
@@ -133,19 +135,31 @@
                 @if($laporan->tenagas->isNotEmpty())
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     @foreach($laporan->tenagas as $t)
-                    @php
-                        $label = $t->jenis_tenaga;
-                        $jumlah = $t->jumlah;
-                        if (!$label) {
-                            $fallback = ['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana];
-                            [$label, $jumlah] = collect($fallback)->first(fn ($value) => (int) $value > 0) ?: ['Tenaga Kerja', 0];
-                        }
-                    @endphp
-                    <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
-                        <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight">{{ $label }}</span>
-                        <span class="mt-2 text-2xl font-bold leading-none">{{ $jumlah }}</span>
-                        <span class="mt-1 text-[10px] font-medium uppercase text-blue-400">{{ $t->satuan ?: 'org' }}</span>
-                    </div>
+                        @if($t->jenis_tenaga)
+                            <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                                <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight">{{ $t->jenis_tenaga }}</span>
+                                <span class="mt-2 text-2xl font-bold leading-none">{{ $t->jumlah }}</span>
+                                <span class="mt-1 text-[10px] font-medium uppercase text-blue-400">{{ $t->satuan ?: 'org' }}</span>
+                            </div>
+                        @else
+                            @php
+                                $fallback = [
+                                    'Pekerja' => $t->pekerja,
+                                    'Tukang' => $t->tukang,
+                                    'Mandor' => $t->mandor,
+                                    'Pelaksana' => $t->pelaksana
+                                ];
+                            @endphp
+                            @foreach($fallback as $label => $jumlah)
+                                @if((int)$jumlah > 0)
+                                    <div class="flex min-h-[104px] flex-col items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-4 text-center text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30">
+                                        <span class="line-clamp-2 text-[11px] font-bold uppercase leading-tight">{{ $label }}</span>
+                                        <span class="mt-2 text-2xl font-bold leading-none">{{ $jumlah }}</span>
+                                        <span class="mt-1 text-[10px] font-medium uppercase text-blue-400">org</span>
+                                    </div>
+                                @endif
+                            @endforeach
+                        @endif
                     @endforeach
                 </div>
                 @else

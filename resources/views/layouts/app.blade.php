@@ -24,6 +24,36 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/tailadmin.css') }}">
+    <style>
+        /* SweetAlert2 Dark Mode Override */
+        html.dark .swal2-popup {
+            background-color: #24303f !important;
+            color: #ffffff !important;
+        }
+        html.dark .swal2-title {
+            color: #ffffff !important;
+        }
+        html.dark .swal2-html-container {
+            color: #94a3b8 !important;
+        }
+        html.dark .swal2-input,
+        html.dark .swal2-file,
+        html.dark .swal2-textarea,
+        html.dark .swal2-select,
+        html.dark .swal2-radio,
+        html.dark .swal2-checkbox {
+            background-color: #1d2a39 !important;
+            color: #ffffff !important;
+            border-color: #3d4d60 !important;
+        }
+        html.dark .swal2-input:focus,
+        html.dark .swal2-file:focus,
+        html.dark .swal2-textarea:focus,
+        html.dark .swal2-select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 1px #3b82f6 !important;
+        }
+    </style>
 </head>
 
 <body x-data="{ page: 'ecommerce', 'loaded': true, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
@@ -114,6 +144,32 @@
                 if (result.isDenied && excelUrl) window.location.href = excelUrl;
                 if (result.isDenied && !excelUrl) Swal.fire({ icon: 'info', title: 'Excel belum tersedia', text: 'Format Excel untuk laporan mingguan lama belum dibuat.' });
             });
+        }
+
+        function pilihJenisLaporanMingguan(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel) {
+            // [DISEMBUNYIKAN SEMENTARA - ATAS PERMINTAAN USER: JANGAN DIHAPUS]
+            /*
+            Swal.fire({
+                title: 'Jenis Laporan Mingguan',
+                text: 'Pilih format template yang ingin digunakan:',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Template Lama (S-Curve)',
+                denyButtonText: 'Template Baru (Fisik)',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc2626',
+                denyButtonColor: '#ea580c'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pilihFormatLaporan('Laporan Mingguan Lama', urlLamaPdf, urlLamaExcel);
+                } else if (result.isDenied) {
+                    pilihFormatLaporan('Laporan Mingguan Baru', urlBaruPdf, urlBaruExcel);
+                }
+            });
+            */
+            // LANGSUNG ARAHKAN KE LAPORAN BARU
+            pilihFormatLaporan('Laporan Mingguan', urlBaruPdf, urlBaruExcel);
         }
     </script>
     @if(session('success'))

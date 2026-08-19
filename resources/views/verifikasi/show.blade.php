@@ -113,18 +113,20 @@
             <h3 class="font-bold text-gray-800 dark:text-white">Tenaga Kerja</h3>
         </div>
         <div class="p-6">
-            @forelse($laporan->tenagas as $t)
-            <div class="grid grid-cols-4 gap-4 text-center">
-                @foreach(['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana] as $l => $v)
-                <div class="rounded-lg bg-blue-50 py-3 px-2 border border-blue-100 dark:border-blue-900/50 dark:bg-blue-900/20">
-                    <span class="block text-xs font-semibold uppercase text-blue-600 dark:text-blue-400 mb-1">{{ $l }}</span>
-                    <span class="block text-xl font-bold text-blue-700 dark:text-blue-300">{{ $v }}</span>
+            <div class="flex flex-col gap-4">
+                @forelse($laporan->tenagas as $t)
+                <div class="grid grid-cols-4 gap-4 text-center">
+                    @foreach(['Pekerja' => $t->pekerja, 'Tukang' => $t->tukang, 'Mandor' => $t->mandor, 'Pelaksana' => $t->pelaksana] as $l => $v)
+                    <div class="rounded-lg bg-blue-50 py-3 px-2 border border-blue-100 dark:border-blue-900/50 dark:bg-blue-900/20">
+                        <span class="block text-xs font-semibold uppercase text-blue-600 dark:text-blue-400 mb-1">{{ $l }}</span>
+                        <span class="block text-xl font-bold text-blue-700 dark:text-blue-300">{{ $v }}</span>
+                    </div>
+                    @endforeach
                 </div>
-                @endforeach
+                @empty
+                <div class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">Tidak ada data tenaga kerja.</div>
+                @endforelse
             </div>
-            @empty
-            <div class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">Tidak ada data tenaga kerja.</div>
-            @endforelse
         </div>
     </div>
 </div>

@@ -62,16 +62,36 @@ class WeeklyPdfController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $laporans = $semuaLaporan->filter(function ($laporan) use (
-
-            $tanggalMulaiProyek,
-
-            $minggu
-
-        ) {
-            return $this->resolveWeekKey($laporan, $tanggalMulaiProyek) === (string) $minggu;
-
-        })->values();
+        if ($minggu === 'custom' && request()->has('start') && request()->has('end')) {
+            $startDate = Carbon::parse(request('start'))->startOfDay();
+            $endDate = Carbon::parse(request('end'))->endOfDay();
+            $laporans = $semuaLaporan->filter(function ($laporan) use ($startDate, $endDate) {
+                return Carbon::parse($laporan->tanggal)->between($startDate, $endDate);
+            })->values();
+        } else {
+            if (request()->has('year') && request()->has('month')) {
+                $year = request('year');
+                $month = request('month');
+                $laporans = $semuaLaporan->filter(function ($laporan) use ($minggu, $year, $month) {
+                    $tanggal = Carbon::parse($laporan->tanggal);
+                    if ($tanggal->year != $year || $tanggal->month != $month) return false;
+                    $day = $tanggal->day;
+                    if ($minggu == 1) return $day >= 1 && $day <= 7;
+                    if ($minggu == 2) return $day >= 8 && $day <= 14;
+                    if ($minggu == 3) return $day >= 15 && $day <= 21;
+                    if ($minggu == 4) return $day >= 22 && $day <= 28;
+                    if ($minggu == 5) return $day >= 29;
+                    return false;
+                })->values();
+            } else {
+                $laporans = $semuaLaporan->filter(function ($laporan) use (
+                    $tanggalMulaiProyek,
+                    $minggu
+                ) {
+                    return $this->resolveWeekKey($laporan, $tanggalMulaiProyek) === (string) $minggu;
+                })->values();
+            }
+        }
 
         abort_if(
 
@@ -93,6 +113,30 @@ class WeeklyPdfController extends Controller
 
         $tanggalSelesai = Carbon::parse($laporans->max('tanggal'));
 
+        if ($minggu !== 'custom' && request()->has('year') && request()->has('month')) {
+            $rYear = request('year');
+            $rMonth = request('month');
+            $tanggalMulai = Carbon::create($rYear, $rMonth, 1);
+            if ($minggu == 1) {
+                $tanggalSelesai = $tanggalMulai->copy()->day(7);
+            } elseif ($minggu == 2) {
+                $tanggalMulai->day(8);
+                $tanggalSelesai = $tanggalMulai->copy()->day(14);
+            } elseif ($minggu == 3) {
+                $tanggalMulai->day(15);
+                $tanggalSelesai = $tanggalMulai->copy()->day(21);
+            } elseif ($minggu == 4) {
+                $tanggalMulai->day(22);
+                $tanggalSelesai = $tanggalMulai->copy()->day(28);
+            } elseif ($minggu == 5) {
+                $tanggalMulai->day(29);
+                $tanggalSelesai = $tanggalMulai->copy()->endOfMonth();
+            }
+        } elseif ($minggu === 'custom' && request()->has('start') && request()->has('end')) {
+            $tanggalMulai = Carbon::parse(request('start'))->startOfDay();
+            $tanggalSelesai = Carbon::parse(request('end'))->endOfDay();
+        }
+
         $laporanPertama = $laporans->first();
 
         /*
@@ -103,7 +147,7 @@ class WeeklyPdfController extends Controller
 
         $summary = [
 
-            'minggu_ke'       => $minggu,
+            'minggu_ke'       => $minggu === 'custom' ? Carbon::parse(request('start'))->format('d/m/y') . ' - ' . Carbon::parse(request('end'))->format('d/m/y') : $minggu,
 
             'nama_proyek'     => $proyek,
 

@@ -43,31 +43,31 @@
             <table class="w-full table-auto">
                 <thead class="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
                     <tr class="text-left text-sm font-semibold text-black dark:text-white">
-                        <th class="py-4 px-2 font-medium">Tanggal</th>
-                        <th class="py-4 px-2 font-medium">Karyawan</th>
-                        <th class="py-4 px-2 font-medium">Proyek</th>
-                        <th class="py-4 px-2 font-medium">Lokasi</th>
-                        <th class="py-4 px-2 font-medium text-center">Status</th>
-                        <th class="py-4 px-2 font-medium text-center">Laporan</th>
-                        <th class="py-4 px-2 font-medium text-center">Aksi</th>
+                        <th class="py-3 px-2 font-medium">Tanggal</th>
+                        <th class="py-3 px-2 font-medium">Karyawan</th>
+                        <th class="py-3 px-2 font-medium">Proyek</th>
+                        <th class="py-3 px-2 font-medium">Lokasi</th>
+                        <th class="py-3 px-2 font-medium text-center">Status</th>
+                        <th class="py-3 px-2 font-medium text-center">Laporan</th>
+                        <th class="py-3 px-2 font-medium text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stroke dark:divide-strokedark">
                     @forelse($laporans as $laporan)
                         <tr class="hover:bg-gray-50 dark:hover:bg-meta-4/50 transition">
-                            <td class="py-4 px-2 text-sm text-black dark:text-white">
+                            <td class="py-3 px-2 text-sm text-black dark:text-white whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($laporan->tanggal)->format('d-m-Y') }}
                             </td>
-                            <td class="py-4 px-2 text-sm text-gray-800 dark:text-gray-200">
+                            <td class="py-3 px-2 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">
                                 {{ $laporan->karyawan->nama }}
                             </td>
-                            <td class="py-4 px-2 text-sm text-gray-800 dark:text-gray-200">
+                            <td class="py-3 px-2 text-sm text-gray-800 dark:text-gray-200">
                                 {{ $laporan->nama_proyek }}
                             </td>
-                            <td class="py-4 px-2 text-sm text-gray-500 dark:text-gray-400">
+                            <td class="py-3 px-2 text-sm text-gray-500 dark:text-gray-400">
                                 {{ $laporan->lokasi }}
                             </td>
-                            <td class="py-4 px-2 text-center text-sm">
+                            <td class="py-3 px-2 text-center text-sm whitespace-nowrap">
                                 @if($laporan->status == "Menunggu")
                                     <span
                                         class="inline-flex rounded-full bg-yellow-100 py-1 px-3 text-xs font-semibold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">Menunggu</span>
@@ -79,36 +79,38 @@
                                         class="inline-flex rounded-full bg-red-100 py-1 px-3 text-xs font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">Ditolak</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-2 text-center">
-                                <div class="flex flex-wrap items-center justify-center gap-2">
+                            <td class="py-3 px-2 text-center">
+                                <div class="flex flex-wrap items-center justify-center gap-1">
                                     <a href="{{ route('laporan.show', $laporan->id) }}"
-                                        class="inline-flex min-w-[78px] items-center justify-center rounded-lg bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition">Detail</a>
+                                        class="inline-flex items-center justify-center rounded-lg bg-blue-500/10 px-2 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition whitespace-nowrap">Detail</a>
+                                    {{-- [DISEMBUNYIKAN SEMENTARA - JANGAN DIHAPUS]
                                     <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '{{ route('pdf.harian', $laporan->id) }}', '{{ route('excel.harian', $laporan->id) }}')"
-                                        class="inline-flex min-w-[58px] items-center justify-center rounded-lg bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-500 hover:text-white transition">Lama</button>
-                                    <button type="button" onclick="pilihFormatLaporan('Laporan Harian Baru', '{{ route('pdf.harian.baru', $laporan->id) }}', '{{ route('excel.harian.baru', $laporan->id) }}')"
-                                        class="inline-flex min-w-[58px] items-center justify-center rounded-lg bg-orange-500/10 px-3 py-2 text-xs font-semibold text-orange-600 hover:bg-orange-500 hover:text-white transition">Baru</button>
+                                        class="inline-flex items-center justify-center rounded-lg bg-red-500/10 px-2 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500 hover:text-white transition whitespace-nowrap">Lama</button>
+                                    --}}
+                                    <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '{{ route('pdf.harian.baru', $laporan->id) }}', '{{ route('excel.harian.baru', $laporan->id) }}')"
+                                        class="inline-flex items-center justify-center rounded-lg bg-orange-500/10 px-2 py-1.5 text-xs font-semibold text-orange-600 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Cetak</button>
                                 </div>
                             </td>
-                            <td class="py-4 px-2 text-center">
-                                <div class="flex flex-col items-center justify-center gap-2">
+                            <td class="py-3 px-1 text-center">
+                                <div class="flex flex-col items-center justify-center gap-1">
                                     <form action="{{ route('laporan.destroy', $laporan->id) }}" method="POST" class="m-0 inline"
                                         onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menghapus laporan ini secara permanen?', this)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" title="Hapus laporan" aria-label="Hapus laporan"
-                                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gray-500/10 text-gray-600 hover:bg-gray-500 hover:text-white transition">
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 text-gray-600 hover:bg-gray-500 hover:text-white transition">
                                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         </button>
                                     </form>
 
                                     <!-- Verifikasi -->
                                     @if($laporan->status == "Menunggu")
-                                        <div class="flex items-center justify-center gap-2">
+                                        <div class="flex items-center justify-center gap-1">
                                             <form action="{{ route('verifikasi.setujui', $laporan->id) }}" method="POST" class="m-0 inline"
                                                 onsubmit="confirmFormSubmit(event, 'Apakah Anda yakin ingin menyetujui laporan ini?', this)">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" title="Setujui laporan" aria-label="Setujui laporan" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white transition">
+                                                <button type="submit" title="Setujui laporan" aria-label="Setujui laporan" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white transition">
                                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                                 </button>
                                             </form>
@@ -116,7 +118,7 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="catatan" class="catatan-input">
-                                                <button type="submit" title="Tolak laporan" aria-label="Tolak laporan" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500 hover:text-white transition">
+                                                <button type="submit" title="Tolak laporan" aria-label="Tolak laporan" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500 hover:text-white transition">
                                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
                                                 </button>
                                             </form>

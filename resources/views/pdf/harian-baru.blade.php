@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: A4 portrait; margin: 9px; }
+        @page { size: A4 portrait; margin: 25px; }
         body { font-family: Arial, sans-serif; font-size: 6px; color: #000; }
         table { width: 100%; border-collapse: collapse; }
         .border td, .border th, .grid td, .grid th { border: 1px solid #000; }
@@ -13,21 +13,24 @@
         .top { vertical-align: top; }
         .photo { width: 100px; height: 75px; object-fit: cover; }
         .sign td { text-align: center; vertical-align: bottom; height: 38px; }
+        .no-border td { border: none !important; padding: 0 2px; }
     </style>
 </head>
 <body>
     <table class="border">
         <tr><td class="header" style="height: 14px; font-size: 10px;">LAPORAN HARIAN</td></tr>
         <tr><td style="padding: 3px; height: 43px;">
-            <b>Pekerjaan</b> : {{ $laporan->pekerjaan }}<br>
-            <b>Lokasi</b> : {{ $laporan->lokasi }}<br>
-            <b>Tahun Anggaran</b> : {{ optional($laporan->tanggal)->format('Y') }}<br>
-            <b>Minggu Ke</b> : {{ $laporan->minggu_ke }}<br>
-            <b>Periode</b> : {{ optional($laporan->tanggal)->format('d F Y') }}<br>
-            <b>Tanggal</b> : {{ optional($laporan->tanggal)->format('d F Y') }}
+            <table class="no-border" style="width: 100%;">
+                <tr><td style="width: 80px;"><b>Pekerjaan</b></td><td style="width: 10px;">:</td><td>{{ $laporan->pekerjaan }}</td></tr>
+                <tr><td><b>Lokasi</b></td><td>:</td><td>{{ $laporan->lokasi }}</td></tr>
+                <tr><td><b>Tahun Anggaran</b></td><td>:</td><td>{{ optional($laporan->tanggal)->format('Y') }}</td></tr>
+                <tr><td><b>Minggu Ke</b></td><td>:</td><td>{{ $laporan->minggu_ke }}</td></tr>
+                <tr><td><b>Periode</b></td><td>:</td><td>{{ optional($laporan->tanggal)->format('d F Y') }}</td></tr>
+                <tr><td><b>Tanggal</b></td><td>:</td><td>{{ optional($laporan->tanggal)->format('d F Y') }}</td></tr>
+            </table>
         </td></tr>
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="2">PEKERJAAN YANG DILAKUKAN</th></tr>
@@ -39,7 +42,7 @@
             <tr><td class="center" style="width: 5%;">{{ $i + 1 }}</td><td>{{ $pekerjaanItems[$i] ?? '' }}</td></tr>
         @endfor
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="7">BAHAN / MATERIAL</th></tr>
@@ -51,7 +54,7 @@
             <tr><td class="center">{{ $i + 1 }}</td><td>{{ $material->nama_material ?? '' }}</td><td class="center">{{ $material->volume ?? '' }}</td><td class="center">{{ $material->satuan ?? '' }}</td><td></td><td></td><td></td></tr>
         @endfor
     </table>
-    <div style="height: 3px;"></div>
+    <div style="height: 6px;"></div>
 
     <table class="grid">
         <tr><th class="header" colspan="4">TENAGA KERJA</th><th class="header" colspan="4">ALAT</th></tr>

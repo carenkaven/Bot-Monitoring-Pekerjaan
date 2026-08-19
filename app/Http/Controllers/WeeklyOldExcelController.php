@@ -18,11 +18,35 @@ class WeeklyOldExcelController extends Controller
             ->where('nama_proyek', $proyek)->orderBy('tanggal')->get();
         abort_if($laporans->isEmpty(), 404, 'Laporan proyek tidak ditemukan.');
         $start = Carbon::parse($laporans->min('tanggal'));
-        $laporans = $laporans->filter(function ($laporan) use ($start, $minggu) {
-            $key = trim((string) $laporan->minggu_ke);
-            $key = $key !== '' ? $key : (string) (floor($start->diffInDays(Carbon::parse($laporan->tanggal)) / 7) + 1);
-            return $key === $minggu;
-        })->values();
+        if ($minggu === 'custom' && request()->has('start') && request()->has('end')) {
+            $startDate = Carbon::parse(request('start'))->startOfDay();
+            $endDate = Carbon::parse(request('end'))->endOfDay();
+            $laporans = $laporans->filter(function ($laporan) use ($startDate, $endDate) {
+                return Carbon::parse($laporan->tanggal)->between($startDate, $endDate);
+            })->values();
+        } else {
+            if (request()->has('year') && request()->has('month')) {
+                $year = request('year');
+                $month = request('month');
+                $laporans = $laporans->filter(function ($laporan) use ($minggu, $year, $month) {
+                    $tanggal = Carbon::parse($laporan->tanggal);
+                    if ($tanggal->year != $year || $tanggal->month != $month) return false;
+                    $day = $tanggal->day;
+                    if ($minggu == 1) return $day >= 1 && $day <= 7;
+                    if ($minggu == 2) return $day >= 8 && $day <= 14;
+                    if ($minggu == 3) return $day >= 15 && $day <= 21;
+                    if ($minggu == 4) return $day >= 22 && $day <= 28;
+                    if ($minggu == 5) return $day >= 29;
+                    return false;
+                })->values();
+            } else {
+                $laporans = $laporans->filter(function ($laporan) use ($start, $minggu) {
+                    $key = trim((string) $laporan->minggu_ke);
+                    $key = $key !== '' ? $key : (string) (floor($start->diffInDays(Carbon::parse($laporan->tanggal)) / 7) + 1);
+                    return $key === $minggu;
+                })->values();
+            }
+        }
         abort_if($laporans->isEmpty(), 404, 'Laporan minggu ini tidak ditemukan.');
 
         $book = new Spreadsheet();
@@ -32,7 +56,7 @@ class WeeklyOldExcelController extends Controller
         $sheet->fromArray([
             ['LAPORAN MINGGUAN'],
             ['Nama Proyek', $proyek],
-            ['Minggu Ke', $minggu],
+            ['Minggu Ke', $minggu === 'custom' ? Carbon::parse(request('start'))->format('d/m/y') . ' - ' . Carbon::parse(request('end'))->format('d/m/y') : $minggu],
             ['Periode', Carbon::parse($laporans->min('tanggal'))->format('d-m-Y') . ' s/d ' . Carbon::parse($laporans->max('tanggal'))->format('d-m-Y')],
             ['Kegiatan', $laporans->first()->kegiatan],
             ['Sub Kegiatan', $laporans->first()->sub_kegiatan],

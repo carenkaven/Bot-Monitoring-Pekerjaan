@@ -12,247 +12,115 @@ class WeeklyReportController extends Controller
 {
     public function index(Request $request)
     {
-        $laporans = Laporan::orderBy('nama_proyek')
-            ->orderBy('tanggal')
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
+
+        $laporans = Laporan::whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH
-        |--------------------------------------------------------------------------
-        */
+        $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth()->day;
 
-        if ($request->filled('search')) {
+        $weeks = [
+            1 => ['start' => 1, 'end' => 7, 'count' => 0],
+            2 => ['start' => 8, 'end' => 14, 'count' => 0],
+            3 => ['start' => 15, 'end' => 21, 'count' => 0],
+            4 => ['start' => 22, 'end' => 28, 'count' => 0],
+        ];
 
-            $search = strtolower($request->search);
-
-            $laporans = $laporans->filter(function ($item) use ($search) {
-
-                return str_contains(strtolower($item->nama_proyek), $search);
-
-            });
-
+        if ($endOfMonth > 28) {
+            $weeks[5] = ['start' => 29, 'end' => $endOfMonth, 'count' => 0];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | GROUP BERDASARKAN PROYEK
-        |--------------------------------------------------------------------------
-        */
-
-        $weeklyReports = [];
-
-        foreach ($laporans->groupBy('nama_proyek') as $namaProyek => $items) {
-
-            $tanggalMulaiProyek = Carbon::parse(
-
-                $items->min('tanggal')
-
-            );
-
-            foreach ($items->groupBy(fn ($laporan) => $this->resolveWeekKey($laporan, $tanggalMulaiProyek)) as $minggu => $laporanMingguan) {
-
-                $key = $namaProyek . '-' . $minggu;
-
-                $weeklyReports[$key] = [
-
-                    'minggu_ke' => $minggu,
-
-                    'nama_proyek' => $namaProyek,
-
-                    'tanggal_mulai' => Carbon::parse($laporanMingguan->min('tanggal')),
-
-                    'tanggal_selesai' => Carbon::parse($laporanMingguan->max('tanggal')),
-
-                    'total_laporan' => $laporanMingguan->count(),
-
-                    'disetujui' => $laporanMingguan->where('status', Laporan::STATUS_DISETUJUI)->count(),
-
-                    'ditolak' => $laporanMingguan->where('status', Laporan::STATUS_DITOLAK)->count(),
-
-                    'menunggu' => $laporanMingguan->where('status', Laporan::STATUS_MENUNGGU)->count(),
-
-                ];
-
-            }
-
+        foreach ($laporans as $lap) {
+            $day = (int) Carbon::parse($lap->tanggal)->format('d');
+            if ($day <= 7) $weeks[1]['count']++;
+            elseif ($day <= 14) $weeks[2]['count']++;
+            elseif ($day <= 21) $weeks[3]['count']++;
+            elseif ($day <= 28) $weeks[4]['count']++;
+            else if (isset($weeks[5])) $weeks[5]['count']++;
         }
+        $proyeks = Laporan::whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
+            ->select('nama_proyek')
+            ->distinct()
+            ->pluck('nama_proyek');
 
-        /*
-        |--------------------------------------------------------------------------
-        | SORT
-        |--------------------------------------------------------------------------
-        */
-
-       $weeklyReports = collect($weeklyReports)
-    ->sortBy(function ($item) {
-        return $item['nama_proyek'].'-'.$this->formatWeekSortKey($item['minggu_ke']);
-    })
-    ->values();
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAGINATION
-        |--------------------------------------------------------------------------
-        */
-
-        $page = LengthAwarePaginator::resolveCurrentPage();
-
-        $perPage = 10;
-
-        $items = $weeklyReports->slice(
-
-            ($page - 1) * $perPage,
-
-            $perPage
-
-        )->values();
-
-        $weeklyReports = new LengthAwarePaginator(
-
-            $items,
-
-            $weeklyReports->count(),
-
-            $perPage,
-
-            $page,
-
-            [
-
-                'path' => request()->url(),
-
-                'query' => request()->query(),
-
-            ]
-
-        );
-
-        return view(
-
-            'weekly.index',
-
-            compact('weeklyReports')
-
-        );
+        return view('weekly.index', compact('year', 'month', 'weeks', 'proyeks'));
     }
 
-    public function show($minggu, $proyek)
+    public function show(Request $request, $minggu, $proyek)
     {
-        $laporans = Laporan::with([
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
 
+        $query = Laporan::with([
             'karyawan',
-
             'pekerjaans',
-
             'materials',
-
             'alats',
-
             'tenagas',
-
             'fotos',
-
             'verifikasi'
-
         ])
-        ->where('nama_proyek', $proyek)
-        ->orderBy('tanggal')
-        ->get();
+        ->whereYear('tanggal', $year)
+        ->whereMonth('tanggal', $month);
 
-        abort_if($laporans->isEmpty(), 404);
+        if ($proyek !== 'all') {
+            $query->where('nama_proyek', $proyek);
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | HITUNG MINGGU BERDASARKAN TANGGAL PERTAMA
-        |--------------------------------------------------------------------------
-        */
+        $laporans = $query->orderBy('tanggal', 'desc')->orderBy('nama_proyek', 'asc')->get();
 
-        $tanggalMulai = Carbon::parse(
-
-            $laporans->min('tanggal')
-
-        );
-
-        $laporans = $laporans->filter(function ($laporan) use ($tanggalMulai, $minggu) {
-
-            return $this->resolveWeekKey($laporan, $tanggalMulai) === (string) $minggu;
-
+        $laporans = $laporans->filter(function ($laporan) use ($minggu) {
+            $day = (int) Carbon::parse($laporan->tanggal)->format('d');
+            if ($minggu == 1) return $day >= 1 && $day <= 7;
+            if ($minggu == 2) return $day >= 8 && $day <= 14;
+            if ($minggu == 3) return $day >= 15 && $day <= 21;
+            if ($minggu == 4) return $day >= 22 && $day <= 28;
+            if ($minggu == 5) return $day >= 29;
+            return false;
         });
 
-        abort_if($laporans->isEmpty(), 404);
+        abort_if($laporans->isEmpty(), 404, 'Tidak ada laporan pada minggu ini.');
 
         $awal = Carbon::parse($laporans->min('tanggal'));
-
         $akhir = Carbon::parse($laporans->max('tanggal'));
 
         $summary = [
-
             'minggu_ke' => $minggu,
-
             'nama_proyek' => $proyek,
-
             'tanggal_mulai' => $awal,
-
             'tanggal_selesai' => $akhir,
-
+            'tahun_anggaran' => $awal->format('Y'),
             'lokasi' => $laporans->first()->lokasi,
-
             'kontraktor' => $laporans->first()->kontraktor,
-
             'konsultan' => $laporans->first()->konsultan,
-
             'pic' => $laporans->first()->pic,
-
             'kegiatan' => $laporans->first()->kegiatan,
-
             'sub_kegiatan' => $laporans->first()->sub_kegiatan,
-
             'total_laporan' => $laporans->count(),
-
             'disetujui' => $laporans->where('status', Laporan::STATUS_DISETUJUI)->count(),
-
             'ditolak' => $laporans->where('status', Laporan::STATUS_DITOLAK)->count(),
-
             'menunggu' => $laporans->where('status', Laporan::STATUS_MENUNGGU)->count(),
-
         ];
 
-        $physicalService = new \App\Services\WeeklyPhysicalReportService();
-        $physicalData = $physicalService->build($minggu, $proyek);
-        $rekapFisik = $physicalData['rows'];
-
-        return view(
-            'weekly.show',
-            compact(
-                'laporans',
-                'summary',
-                'rekapFisik'
-            )
-        );
-    }
-
-    private function resolveWeekKey(Laporan $laporan, Carbon $tanggalMulaiProyek): string
-    {
-        $mingguKe = trim((string) $laporan->minggu_ke);
-
-        if ($mingguKe !== '') {
-            return $mingguKe;
+        $rekapFisik = [];
+        if ($proyek !== 'all') {
+            $physicalService = new \App\Services\WeeklyPhysicalReportService();
+            try {
+                $physicalData = $physicalService->build($minggu, $proyek);
+                $rekapFisik = $physicalData['rows'];
+            } catch (\Exception $e) {
+                // Biarkan kosong jika tidak dapat ditarik
+            }
         }
+        $proyeks = Laporan::whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
+            ->select('nama_proyek')
+            ->distinct()
+            ->pluck('nama_proyek');
 
-        $hari = $tanggalMulaiProyek->diffInDays(
-            Carbon::parse($laporan->tanggal)
-        );
-
-        return (string) (floor($hari / 7) + 1);
-    }
-
-    private function formatWeekSortKey(string $mingguKe): string
-    {
-        if (preg_match('/\d+/', $mingguKe, $matches)) {
-            return '0-'.str_pad($matches[0], 6, '0', STR_PAD_LEFT).'-'.strtolower($mingguKe);
-        }
-
-        return '1-999999-'.strtolower($mingguKe);
+        return view('weekly.show', compact('laporans', 'summary', 'rekapFisik', 'year', 'month', 'proyeks'));
     }
 }

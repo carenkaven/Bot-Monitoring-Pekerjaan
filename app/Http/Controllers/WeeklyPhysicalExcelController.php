@@ -36,7 +36,7 @@ class WeeklyPhysicalExcelController extends Controller
         $sheet->getStyle('D7:F8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         $sheet->mergeCells('G4:H8');
-        $sheet->setCellValue('G4', "MINGGU : {$summary['minggu_ke']}\nPERIODE : {$summary['tanggal_mulai']->format('d F Y')} s/d {$summary['tanggal_selesai']->format('d F Y')}");
+        $sheet->setCellValue('G4', "MINGGU : {$summary['minggu_ke']}\nPERIODE : {$summary['tanggal_mulai']->locale('id')->isoFormat('D MMMM Y')} s/d {$summary['tanggal_selesai']->locale('id')->isoFormat('D MMMM Y')}");
         $sheet->mergeCells('I4:K8');
         $sheet->setCellValue('I4', "KONTRAKTOR / KONTRAKTOR PELAKSANA\n{$summary['kontraktor']}");
         $this->wrapCenter($sheet, 'A4:F5'); $this->wrapCenter($sheet, 'G4:K8');
@@ -101,7 +101,7 @@ class WeeklyPhysicalExcelController extends Controller
         $sheet->mergeCells("I{$row}:K{$row}");
         $sheet->setCellValue("B{$row}", "Mengetahui:\nPEJABAT PEMBUAT KOMITMEN\nDINAS LINGKUNGAN HIDUP\nKABUPATEN KEDIRI");
         $sheet->setCellValue("E{$row}", "Diperiksa dan Diperiksa oleh:\nKONSULTAN PENGAWAS\n" . ($summary['konsultan'] ?? '-'));
-        $sheet->setCellValue("I{$row}", "Kediri, " . $summary['tanggal_selesai']->format('d F Y') . "\nKontraktor Pelaksana\n" . ($summary['kontraktor'] ?? '-'));
+        $sheet->setCellValue("I{$row}", "Kediri, " . $summary['tanggal_selesai']->locale('id')->isoFormat('D MMMM Y') . "\nKontraktor Pelaksana\n" . ($summary['kontraktor'] ?? '-'));
         $sheet->getStyle("B{$row}:K{$row}")->getAlignment()->setWrapText(true)->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $row += 5;
