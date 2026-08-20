@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('content'); ?>
 
     <div class="space-y-6">
@@ -172,11 +174,9 @@
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('PATCH'); ?>
 
-                                                <button
-                                                    class="inline-flex rounded-lg bg-green-50 dark:bg-green-500/10 py-1.5 px-3 text-xs font-bold text-green-600 hover:bg-green-500 hover:text-white transition shadow-sm border border-green-200 dark:border-green-500/20">
-
-                                                    Verifikasi
-
+                                                <button title="Verifikasi"
+                                                    class="inline-flex rounded-lg bg-green-50 dark:bg-green-500/10 p-2 text-green-600 hover:bg-green-500 hover:text-white transition shadow-sm border border-green-200 dark:border-green-500/20">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 </button>
 
                                             </form>
@@ -187,11 +187,9 @@
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('PATCH'); ?>
 
-                                                <button
-                                                    class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 py-1.5 px-3 text-xs font-bold text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
-
-                                                    Tolak
-
+                                                <button title="Tolak"
+                                                    class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 p-2 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                 </button>
 
                                             </form>
@@ -205,22 +203,18 @@
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('PATCH'); ?>
 
-                                                <button
-                                                    class="inline-flex rounded-lg bg-orange-50 dark:bg-orange-500/10 py-1.5 px-3 text-xs font-bold text-orange-600 hover:bg-orange-500 hover:text-white transition shadow-sm border border-orange-200 dark:border-orange-500/20">
-
-                                                    Nonaktif
-
+                                                <button title="Nonaktifkan"
+                                                    class="inline-flex rounded-lg bg-orange-50 dark:bg-orange-500/10 p-2 text-orange-600 hover:bg-orange-500 hover:text-white transition shadow-sm border border-orange-200 dark:border-orange-500/20">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                                 </button>
 
                                             </form>
 
                                         <?php endif; ?>
 
-                                        <a href="<?php echo e(route('karyawan.edit', $item->id)); ?>"
-                                            class="inline-flex rounded-lg bg-blue-50 dark:bg-blue-500/10 py-1.5 px-3 text-xs font-bold text-blue-600 hover:bg-blue-500 hover:text-white transition shadow-sm border border-blue-200 dark:border-blue-500/20">
-
-                                            Edit
-
+                                        <a href="<?php echo e(route('karyawan.edit', $item->id)); ?>" title="Edit"
+                                            class="inline-flex rounded-lg bg-blue-50 dark:bg-blue-500/10 p-2 text-blue-600 hover:bg-blue-500 hover:text-white transition shadow-sm border border-blue-200 dark:border-blue-500/20">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </a>
 
                                         <form action="<?php echo e(route('karyawan.destroy', $item->id)); ?>" method="POST" class="inline"
@@ -229,11 +223,9 @@
                                             <?php echo csrf_field(); ?>
                                             <?php echo method_field('DELETE'); ?>
 
-                                            <button
-                                                class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 py-1.5 px-3 text-xs font-bold text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
-
-                                                Hapus
-
+                                            <button title="Hapus"
+                                                class="inline-flex rounded-lg bg-red-50 dark:bg-red-500/10 p-2 text-red-600 hover:bg-red-500 hover:text-white transition shadow-sm border border-red-200 dark:border-red-500/20">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
 
                                         </form>
@@ -293,4 +285,5 @@
     </script>
 
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/master/karyawan/index.blade.php ENDPATH**/ ?>
