@@ -54,14 +54,14 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
             // State: Menerima proyek, kirim template
             const projectIndex = parseInt(cleanText) - 1;
             if (isNaN(projectIndex) || !session.projects[projectIndex]) {
-                await reply("⚠️ Pilihan tidak tersedia.\n\nSilakan balas dengan nomor proyek yang valid.");
+                await reply("Pilihan tidak tersedia.\n\nSilakan balas dengan nomor proyek yang valid.");
                 return;
             }
             session.data.project_id = session.projects[projectIndex].id;
             session.data.project_name = session.projects[projectIndex].name || session.projects[projectIndex].nama_proyek;
             session.step = 2;
 
-            const template = `Silakan copy format di bawah ini dan lengkapi datanya:\n\nLokasi: \nTanggal (YYYY-MM-DD): \nProgress (%): \nUraian: \nJumlah Pekerja: \nJumlah Tukang: \nJumlah Mandor: \nMaterial: \nPeralatan: \nCuaca (Cerah/Mendung/Hujan): \nCatatan: \n`;
+            const template = `Silakan copy format di bawah ini dan lengkapi datanya:\n\nLAPORAN HARIAN\n\nPekerjaan :\nLokasi :\nTanggal (YYYY-MM-DD) :\nMinggu Ke :\nKontraktor Pelaksana :\nKonsultan Pengawas :\n\nPekerjaan Yang Dilakukan :\n- \n- \n\nBahan / Material :\n- \n- \n\nTenaga Kerja :\nPekerja = \nTukang = \nMandor = \nPelaksana = \n\nAlat :\n- \n- \n\nJam Kerja :\nCuaca :\n\nKendala :\n\nKeterangan :\n\nCatatan / Progress :\n`;
             await reply(template);
             break;
 
@@ -92,15 +92,15 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                 session.data.catatan = val('Catatan');
 
                 if (!session.data.lokasi || !session.data.uraian) {
-                    await reply("⚠️ Mohon pastikan format pesannya dicopy secara utuh dan terisi datanya (terutama Lokasi dan Uraian).");
+                    await reply("Mohon pastikan format pesannya dicopy secara utuh dan terisi datanya (terutama Lokasi dan Uraian).");
                     return;
                 }
 
                 session.step = 3;
-                await reply("📸 *DOKUMENTASI*\n\nSilakan kirim foto dokumentasi.");
+                await reply("*DOKUMENTASI*\n\nSilakan kirim foto dokumentasi.");
             } catch (e) {
                 console.error("Error parsing template:", e);
-                await reply("⚠️ Mohon isi dengan format yang benar.");
+                await reply("Mohon isi dengan format yang benar.");
             }
             break;
 
@@ -111,7 +111,7 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
             // Prioritas cek "Selesai Dokumentasi" by number first (fallback keyword Selesai/-)
             if (cleanText === '2' || upperText === 'SELESAI' || cleanText === '-') {
                 if (!session.images || session.images.length === 0) {
-                    await reply("⚠️ Anda belum mengirim foto apapun. Silakan kirim foto dokumentasi.");
+                    await reply("Anda belum mengirim foto apapun. Silakan kirim foto dokumentasi.");
                     return;
                 }
                 session.step = 4;
@@ -125,13 +125,13 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
             }
 
             if (!isImage) {
-                await reply("⚠️ Silakan kirim foto dokumentasi atau pilih menu berikut:\n\n1. Tambah Foto\n2. Selesai Dokumentasi");
+                await reply("Silakan kirim foto dokumentasi atau pilih menu berikut:\n\n1. Tambah Foto\n2. Selesai Dokumentasi");
                 return;
             }
 
             const imageSize = msg.message.imageMessage?.fileLength || msg.message.documentMessage?.fileLength;
             if (imageSize && parseInt(imageSize) > (5 * 1024 * 1024)) {
-                await reply("⚠️ Ukuran gambar maksimal 5 MB. Silakan kirim gambar lain.");
+                await reply("Ukuran gambar maksimal 5 MB. Silakan kirim gambar lain.");
                 return;
             }
 
@@ -150,10 +150,10 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                 });
 
                 console.log(`[PHOTO] Photo received from ${phone} at ${formatWIB()}`);
-                await reply("✅ Foto berhasil diterima.\n\nPilih:\n\n1. Tambah Foto\n2. Selesai Dokumentasi\n\nBalas dengan angka pilihan.");
+                await reply("Foto berhasil diterima.\n\nPilih:\n\n1. Tambah Foto\n2. Selesai Dokumentasi\n\nBalas dengan angka pilihan.");
             } catch (error) {
                 console.error("Failed downloading media", error);
-                await reply("⚠️ Terjadi kesalahan membaca gambar. Silakan kirim ulang foto.");
+                await reply("Terjadi kesalahan membaca gambar. Silakan kirim ulang foto.");
             }
             break;
 
@@ -173,20 +173,20 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                     console.log(`[REPORT] ${phone} report completed at ${formatWIB()}`);
                     
                     session.step = 6;
-                    await reply("✅ *LAPORAN BERHASIL DISIMPAN*\n\nTerima kasih, laporan telah selesai.\n\nPilih:\n\n1. Buat Laporan Baru\n2. Selesai");
+                    await reply("*LAPORAN BERHASIL DISIMPAN*\n\nTerima kasih, laporan telah selesai.\n\nPilih:\n\n1. Buat Laporan Baru\n2. Selesai");
                 } catch (error) {
                     console.error("Gagal simpan", error);
-                    await sock.sendMessage(remoteJid, { text: "❌ Terjadi kesalahan saat menyimpan laporan.\n\nSilakan hubungi Admin." });
+                    await sock.sendMessage(remoteJid, { text: "Terjadi kesalahan saat menyimpan laporan.\n\nSilakan hubungi Admin." });
                     deleteSession(phone);
                 }
             } else if (cleanText === '2') {
                 session.step = 5;
-                await reply("✏️ *EDIT LAPORAN*\n\nPilih data yang ingin diubah:\n\n1. Lokasi\n2. Tanggal\n3. Progress\n4. Uraian\n5. Pekerja\n6. Tukang\n7. Mandor\n8. Material\n9. Peralatan\n10. Cuaca\n11. Catatan\n12. Kembali ke Konfirmasi\n\nBalas dengan angka pilihan.");
+                await reply("*EDIT LAPORAN*\n\nPilih data yang ingin diubah:\n\n1. Lokasi\n2. Tanggal\n3. Progress\n4. Uraian\n5. Pekerja\n6. Tukang\n7. Mandor\n8. Material\n9. Peralatan\n10. Cuaca\n11. Catatan\n12. Kembali ke Konfirmasi\n\nBalas dengan angka pilihan.");
             } else if (cleanText === '3') {
                 deleteSession(phone);
                 await sock.sendMessage(remoteJid, { text: "Proses pelaporan telah dibatalkan." });
             } else {
-                await reply("⚠️ Pilihan tidak tersedia.\n\nPilih:\n1. Kirim Laporan\n2. Edit Laporan\n3. Batalkan");
+                await reply("Pilihan tidak tersedia.\n\nPilih:\n1. Kirim Laporan\n2. Edit Laporan\n3. Batalkan");
             }
             break;
 
@@ -199,7 +199,7 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                 session.data[field] = cleanText;
                 session.editFieldWait = null;
                 session.step = 4;
-                await sock.sendMessage(remoteJid, { text: `✅ Data ${field} berhasil diubah.` });
+                await sock.sendMessage(remoteJid, { text: `Data ${field} berhasil diubah.` });
                 await sendConfirmation(session, reply);
                 return;
             }
@@ -220,7 +220,7 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                 session.editFieldWait = fieldsMap[editChoice];
                 await reply(`Silakan masukkan nilai baru untuk *${fieldsMap[editChoice]}*:`);
             } else {
-                await reply("⚠️ Pilihan tidak tersedia. Balas dengan angka 1-12.");
+                await reply("Pilihan tidak tersedia. Balas dengan angka 1-12.");
             }
             break;
 
@@ -237,7 +237,7 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
                 deleteSession(phone);
                 await sock.sendMessage(remoteJid, { text: "Terima kasih telah menggunakan layanan kami." });
             } else {
-                await reply("⚠️ Pilihan tidak tersedia.\n\n1. Buat Laporan Baru\n2. Selesai");
+                await reply("Pilihan tidak tersedia.\n\n1. Buat Laporan Baru\n2. Selesai");
             }
             break;
     }
@@ -245,6 +245,6 @@ export const handleReportWizard = async (sock, remoteJid, phone, messageText, ms
 
 const sendConfirmation = async (session, reply) => {
     const dateDisplay = session.data.tanggal;
-    const summary = `📋 *KONFIRMASI LAPORAN*\n\nProyek: ${session.data.project_name}\nLokasi: ${session.data.lokasi}\nTanggal: ${dateDisplay}\nProgress: ${session.data.progress}%\nUraian: ${session.data.uraian}\nFoto: ${session.images.length} file\n\nPilih:\n\n1. Kirim Laporan\n2. Edit Laporan\n3. Batalkan\n\nBalas dengan angka pilihan.`;
+    const summary = `*KONFIRMASI LAPORAN*\n\nProyek: ${session.data.project_name}\nLokasi: ${session.data.lokasi}\nTanggal: ${dateDisplay}\nProgress: ${session.data.progress}%\nUraian: ${session.data.uraian}\nFoto: ${session.images.length} file\n\nPilih:\n\n1. Kirim Laporan\n2. Edit Laporan\n3. Batalkan\n\nBalas dengan angka pilihan.`;
     await reply(summary);
 };

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Traits\RotatesPortraitImages;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -13,6 +14,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DailyNewExcelController extends Controller
 {
+    use RotatesPortraitImages;
+
     public function harian(Laporan $laporan)
     {
         $laporan->load(['materials', 'tenagas', 'alats', 'pekerjaans', 'fotos']);
@@ -150,10 +153,10 @@ class DailyNewExcelController extends Controller
         $endHour = $laporan->jam_selesai ? (int) substr($laporan->jam_selesai, 0, 2) : null;
         $cuacaStr = strtolower($laporan->cuaca ?? '');
         $cuacaType = 'none';
-        if (str_contains($cuacaStr, 'gerimis')) {
-            $cuacaType = 'gerimis';
-        } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
+        if (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
             $cuacaType = 'hujan';
+        } elseif (str_contains($cuacaStr, 'gerimis') || str_contains($cuacaStr, 'hujan ringan') || str_contains($cuacaStr, 'hujan')) {
+            $cuacaType = 'gerimis';
         } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
             $cuacaType = 'berawan';
         } else {
@@ -244,9 +247,27 @@ class DailyNewExcelController extends Controller
         $this->border($sheet, "F{$rowNc}:F{$rowNc}");
         $sheet->mergeCells("G{$rowNc}:H{$rowNc}"); $sheet->setCellValue("G{$rowNc}", 'Berawan/Mendung');
 
-        // Foto ditempatkan di bawah blok notasi.
-        $photoTop = $noteTop + 6;
-        $photoBottom = $photoTop + 5;
+        $textTop = $noteTop + 6;
+        $sheet->mergeCells("A{$textTop}:C{$textTop}"); $sheet->setCellValue("A{$textTop}", 'KENDALA');
+        $sheet->mergeCells("D{$textTop}:E{$textTop}"); $sheet->setCellValue("D{$textTop}", 'KETERANGAN');
+        $sheet->mergeCells("F{$textTop}:H{$textTop}"); $sheet->setCellValue("F{$textTop}", 'CATATAN / PROGRESS');
+        $this->header($sheet, "A{$textTop}:H{$textTop}");
+        
+        $textBottom = $textTop + 1;
+        $sheet->mergeCells("A{$textBottom}:C{$textBottom}"); $sheet->setCellValue("A{$textBottom}", $laporan->kendala ?: '-');
+        $sheet->mergeCells("D{$textBottom}:E{$textBottom}"); $sheet->setCellValue("D{$textBottom}", $laporan->keterangan ?: '-');
+        $sheet->mergeCells("F{$textBottom}:H{$textBottom}"); $sheet->setCellValue("F{$textBottom}", $laporan->catatan ?: '-');
+        
+        $this->wrap($sheet, "A{$textBottom}:H{$textBottom}", Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle("A{$textBottom}:H{$textBottom}")->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        $this->border($sheet, "A{$textTop}:C{$textBottom}");
+        $this->border($sheet, "D{$textTop}:E{$textBottom}");
+        $this->border($sheet, "F{$textTop}:H{$textBottom}");
+        $sheet->getRowDimension($textBottom)->setRowHeight(60);
+
+        // Foto ditempatkan di bawah blok teks.
+        $photoTop = $textBottom + 2;
+        $photoBottom = $photoTop + 6; // 6 rows for photos
         $sheet->mergeCells("A{$photoTop}:H{$photoTop}");
         $sheet->setCellValue("A{$photoTop}", 'FOTO DOKUMENTASI');
         $this->header($sheet, "A{$photoTop}:H{$photoTop}");
@@ -255,35 +276,48 @@ class DailyNewExcelController extends Controller
         $this->center($sheet, "A" . ($photoTop + 1) . ":H{$photoBottom}");
         $this->border($sheet, "A{$photoTop}:H{$photoBottom}");
         for ($photoRow = $photoTop + 1; $photoRow <= $photoBottom; $photoRow++) {
-            $sheet->getRowDimension($photoRow)->setRowHeight(18); // Increased row height to fit 4:3 image nicely
+            $sheet->getRowDimension($photoRow)->setRowHeight(25); // Total height = 6 * 25 = 150px
         }
         $anchors = [
-            ['col' => 'A', 'offset' => 10], // Starts at 10px (A is 0px)
-            ['col' => 'C', 'offset' => 59], // Starts at 248px (C is 189px)
-            ['col' => 'G', 'offset' => 37], // Starts at 485px (G is 448px)
+            ['col' => 'B', 'offset' => 10], 
+            ['col' => 'D', 'offset' => 10], 
+            ['col' => 'G', 'offset' => 10], 
         ];
         foreach ($laporan->fotos->take(3) as $index => $foto) {
             $path = storage_path('app/public/' . ltrim($foto->foto, '/\\'));
-            if (is_file($path)) {
+            if (file_exists($path)) {
+                $this->ensureLandscapeImage($path);
+                
                 $anchor = $anchors[$index] ?? ['col' => 'A', 'offset' => 10];
                 $drawing = new Drawing();
                 $drawing->setPath($path)
                     ->setCoordinates($anchor['col'] . ($photoTop + 1))
                     ->setOffsetX($anchor['offset'])
-                    ->setOffsetY(4)
-                    ->setResizeProportional(true) // Maintain aspect ratio to prevent squeezing
-                    ->setWidth(100)
-                    ->setHeight(75) // 4:3 landscape ratio
+                    ->setOffsetY(10)
+                    ->setResizeProportional(false) // Force exact dimensions
+                    ->setWidth(160)
+                    ->setHeight(120) // 4:3 landscape ratio
                     ->setWorksheet($sheet);
             }
         }
 
         $signRow = max($row, $photoBottom) + 2;
-        $sheet->mergeCells("A{$signRow}:D" . ($signRow + 3));
-        $sheet->mergeCells("E{$signRow}:H" . ($signRow + 3));
-        $sheet->setCellValue("A{$signRow}", "Diperiksa oleh:\nKonsultan Pengawas\n\n__________________\nPT. RENO ABIRAMA SAKTI");
-        $sheet->setCellValue("E{$signRow}", (optional($laporan->tanggal)->format('d F Y') ?: '-') . "\nDibuat oleh:\nKontraktor Pelaksana\n\n__________________\n" . ($laporan->kontraktor ?: '-'));
-        $this->wrap($sheet, "A{$signRow}:H" . ($signRow + 3), Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells("A{$signRow}:D" . ($signRow + 8));
+        $sheet->mergeCells("E{$signRow}:H" . ($signRow + 8));
+        
+        $sheet->setCellValue("A{$signRow}", "Diperiksa oleh:\nKonsultan Pengawas\n\n\n\n________________________\n" . ($laporan->konsultan ?: 'PT. RENO ABIRAMA SAKTI'));
+        $sheet->setCellValue("E{$signRow}", (optional($laporan->tanggal)->format('d F Y') ?: '-') . "\nDibuat oleh:\nKontraktor Pelaksana\n\n\n\n________________________\n" . ($laporan->kontraktor ?: '-'));
+        
+        $this->wrap($sheet, "A{$signRow}:H" . ($signRow + 8), Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("A{$signRow}:H" . ($signRow + 8))->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        
+        for ($i = 0; $i <= 8; $i++) {
+             $sheet->getRowDimension($signRow + $i)->setRowHeight(16);
+        }
+        
+        $botTimeRow = $signRow + 10;
+        $sheet->setCellValue("A{$botTimeRow}", "Waktu Pengiriman Laporan (Via Bot WA) : " . ($laporan->created_at ? $laporan->created_at->format('d F Y H:i:s') : '-') . " WIB");
+        $sheet->getStyle("A{$botTimeRow}")->getFont()->setItalic(true)->setSize(9)->getColor()->setRGB('555555');
 
         $sheet->getPageSetup()->setOrientation('portrait')->setPaperSize('9')->setFitToWidth(1)->setFitToHeight(1);
         $sheet->getPageMargins()->setTop(.5)->setRight(.5)->setBottom(.5)->setLeft(.5);

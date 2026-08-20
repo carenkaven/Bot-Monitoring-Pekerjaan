@@ -88,7 +88,7 @@
                                     <a href="<?php echo e(route('laporan.show', $laporan->id)); ?>"
                                         class="inline-flex items-center justify-center rounded-lg bg-blue-500/10 px-2 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-500 hover:text-white transition whitespace-nowrap">Detail</a>
                                     
-                                    <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '<?php echo e(route('pdf.harian.baru', $laporan->id)); ?>', '<?php echo e(route('excel.harian.baru', $laporan->id)); ?>')"
+                                    <button type="button" onclick="pilihJenisLaporanHarian('<?php echo e(route('pdf.harian', $laporan->id)); ?>', '<?php echo e(route('excel.harian', $laporan->id)); ?>', '<?php echo e(route('pdf.harian.baru', $laporan->id)); ?>', '<?php echo e(route('excel.harian.baru', $laporan->id)); ?>')"
                                         class="inline-flex items-center justify-center rounded-lg bg-orange-500/10 px-2 py-1.5 text-xs font-semibold text-orange-600 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Cetak</button>
                                 </div>
                             </td>

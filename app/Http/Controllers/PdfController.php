@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Traits\RotatesPortraitImages;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PdfController extends Controller
 {
+    use RotatesPortraitImages;
+
     public function harian(Laporan $laporan)
     {
         $laporan->load([
@@ -22,6 +25,8 @@ class PdfController extends Controller
         $fotoBase64 = $laporan->fotos->map(function ($foto) {
             $path = realpath(storage_path('app/public/' . ltrim($foto->foto, '/\\')));
             if ($path && is_readable($path)) {
+                $this->ensureLandscapeImage($path);
+                
                 return [
                     'src'         => str_replace('\\', '/', $path),
                     'keterangan'  => $foto->keterangan ?? '',

@@ -245,10 +245,12 @@
         if (proyek === 'all') {
             cetakSemuaProyek(minggu);
         } else if (proyek) {
-            const urlPdf = `{{ url('pdf/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
-            const urlExcel = `{{ url('excel/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlLamaPdf = `{{ url('pdf/weekly') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlLamaExcel = `{{ url('excel/weekly') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlBaruPdf = `{{ url('pdf/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
+            const urlBaruExcel = `{{ url('excel/weekly-fisik') }}/${minggu}/${encodeURIComponent(proyek)}?year={{ $year }}&month={{ $month }}`;
             
-            pilihFormatLaporan(`Cetak Laporan Baru (Minggu ${minggu})`, urlPdf, urlExcel);
+            pilihJenisLaporanMingguan(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel);
         }
     }
 

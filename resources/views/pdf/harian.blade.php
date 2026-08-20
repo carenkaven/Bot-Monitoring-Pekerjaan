@@ -56,13 +56,16 @@ table{
 }
 
 .foto{
-    max-width:100%;
-    max-height:260px;
+    width:480px;
+    height:360px;
+    object-fit:cover;
+    margin: 0 auto;
+    display: block;
 }
 
 .foto-box{
     padding:5px;
-    height:270px;
+    height:370px;
 }
 
 .info td{
@@ -216,7 +219,7 @@ Keterangan
 
 <td class="border foto-box center middle">
 
-<img src="{{ $fotoData['src'] }}" class="foto">
+<img src="{{ $fotoData['src'] }}" width="340" height="255" style="object-fit:cover; display:block; margin: 0 auto;">
 
 </td>
 
@@ -301,3 +304,10 @@ Belum ada dokumentasi pekerjaan.
 </table>
 
 <br><br>
+
+<div style="font-size: 10px; color: #555; font-style: italic;">
+    Waktu Pengiriman Laporan (Via Bot WA) : {{ $laporan->created_at ? $laporan->created_at->format('d F Y H:i:s') : '-' }} WIB
+</div>
+
+</body>
+</html>

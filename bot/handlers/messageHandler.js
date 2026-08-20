@@ -68,21 +68,21 @@ export const handleIncomingMessage = async (sock, m) => {
 
         if (cleanText === '3' || upperText === 'BANTUAN') {
             await sock.sendMessage(remoteJid, {
-                text: "📋 *BANTUAN*\n\nGunakan pilihan angka untuk navigasi:\n1. Buat Laporan Harian : Memulai pelaporan.\n2. Riwayat Laporan : Cek status.\n3. Bantuan : Menampilkan panduan ini.\n\nKetik 'BATAL' kapan saja jika ingin membatalkan proses laporan berjalan."
+                text: "*BANTUAN*\n\nGunakan pilihan angka untuk navigasi:\n1. Buat Laporan Harian : Memulai pelaporan.\n2. Riwayat Laporan : Cek status.\n3. Bantuan : Menampilkan panduan ini.\n\nKetik 0 kapan saja jika ingin membatalkan proses laporan berjalan."
             });
             return;
         }
 
         if (['TEST', 'PING', 'HALO', 'HAI', 'P', 'MENU'].includes(upperText)) {
             await sock.sendMessage(remoteJid, { 
-                text: "Halo! 🤖 Bot WhatsApp Monitoring PKN aktif.\n\n📋 *MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan." 
+                text: "Halo. Sistem WhatsApp Monitoring PKN aktif.\n\n*MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan."
             });
             return;
         }
 
         // Tampilkan Menu Utama jika tidak dikenali
         await sock.sendMessage(remoteJid, { 
-            text: "📋 *MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan." 
+            text: "*MENU UTAMA*\n\nSilakan pilih:\n\n1. Buat Laporan Harian\n2. Lihat Riwayat Laporan\n3. Bantuan\n\nBalas dengan angka pilihan."
         });
 
     } catch (error) {

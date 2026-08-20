@@ -11,7 +11,7 @@
         .header { background: #d9d9d9; text-align: center; font-weight: bold; }
         .center { text-align: center; vertical-align: middle; }
         .top { vertical-align: top; }
-        .photo { width: 95%; max-height: 140px; object-fit: cover; margin: 0 auto; }
+        .photo { width: 112px; height: 84px; object-fit: cover; margin: 0 auto; display: block; }
         .sign td { text-align: center; vertical-align: bottom; height: 38px; }
         .no-border td { border: none !important; padding: 0 2px; }
         .waktu-table { width: 100%; border-collapse: collapse; }
@@ -105,12 +105,12 @@
             $cuacaStr = strtolower($laporan->cuaca ?? '');
             
             $cuacaStyle = 'background-color: #ffffff;';
-            if (str_contains($cuacaStr, 'gerimis')) {
-                $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
-            } elseif (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
+            if (str_contains($cuacaStr, 'hujan deras') || str_contains($cuacaStr, 'hujan lebat')) {
                 $cuacaStyle = "background-color: #d9d9d9; background-image: url('$patHujan'); background-repeat: repeat;";
+            } elseif (str_contains($cuacaStr, 'gerimis') || str_contains($cuacaStr, 'hujan ringan') || str_contains($cuacaStr, 'hujan')) {
+                $cuacaStyle = "background-color: #808080; background-image: url('$patKerja'); background-repeat: repeat;";
             } elseif (str_contains($cuacaStr, 'berawan') || str_contains($cuacaStr, 'mendung')) {
-                $cuacaStyle = "background-color: #ffffff;";
+                $cuacaStyle = "background-color: #e6e6e6;";
             }
         ?>
         <?php for($h = 0; $h < 24; $h++): ?>
@@ -147,20 +147,20 @@
                     <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Cerah</td>
                 <?php elseif($h == 3): ?>
                     <td class="no-b" colspan="2"></td>
-                    <td style="height: 10px; width: 25px; background-color: #ffffff;"></td>
+                    <td style="height: 10px; width: 25px; background-color: #e6e6e6;"></td>
                     <td class="no-b" style="padding-left: 5px; vertical-align:middle;">Berawan/Mendung</td>
                 <?php elseif($h == 4): ?>
                     <td class="no-b" colspan="4"></td>
                 <?php elseif($h == 5): ?>
-                    <td class="header" colspan="4">FOTO DOKUMENTASI</td>
+                    <td class="header" colspan="5">FOTO DOKUMENTASI</td>
                 <?php elseif($h == 6): ?>
-                    <td class="center" colspan="4" rowspan="18" style="padding: 4px; vertical-align: middle;">
+                    <td class="center" colspan="5" rowspan="18" style="padding: 4px; vertical-align: middle;">
                         <?php if(count($fotoDokumentasi) > 0): ?>
                             <table style="width:100%; border-collapse:collapse; border: none;">
                                 <tr>
                                     <?php $__currentLoopData = $fotoDokumentasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $src): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <td style="width:33.33%; border:none; padding:2px; text-align:center; vertical-align:middle;">
-                                            <img class="photo" src="<?php echo e($src); ?>" alt="Foto dokumentasi">
+                                            <img src="<?php echo e($src); ?>" width="72" height="54" style="object-fit:cover; display:block; margin: 0 auto;" alt="Foto dokumentasi">
                                         </td>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tr>
@@ -173,12 +173,29 @@
             </tr>
         <?php endfor; ?>
     </table>
+    <div style="height: 6px;"></div>
+
+    <table class="grid">
+        <tr>
+            <th class="header" style="width: 33.3%;">KENDALA</th>
+            <th class="header" style="width: 33.3%;">KETERANGAN</th>
+            <th class="header" style="width: 33.3%;">CATATAN / PROGRESS</th>
+        </tr>
+        <tr>
+            <td class="top" style="padding: 5px; height: 50px;"><?php echo nl2br(e($laporan->kendala ?: '-')); ?></td>
+            <td class="top" style="padding: 5px;"><?php echo nl2br(e($laporan->keterangan ?: '-')); ?></td>
+            <td class="top" style="padding: 5px;"><?php echo nl2br(e($laporan->catatan ?: '-')); ?></td>
+        </tr>
+    </table>
     <div style="height: 2px;"></div>
 
     <table class="sign" style="margin-top: 15px; width: 100%;"><tr>
         <td style="width: 50%;">Diperiksa oleh:<br><b>Konsultan Pengawas</b><br><br><br><br><br><u>___________________________</u><br>PT. RENO ABIRAMA SAKTI</td>
         <td style="width: 50%;"><?php echo e(optional($laporan->tanggal)->format('d F Y')); ?><br>Dibuat oleh:<br><b>Kontraktor Pelaksana</b><br><br><br><br><br><u>___________________________</u><br><?php echo e($laporan->kontraktor); ?></td>
     </tr></table>
+    <div style="margin-top: 20px; font-size: 9px; color: #555; font-style: italic;">
+        Waktu Pengiriman Laporan (Via Bot WA) : <?php echo e($laporan->created_at ? $laporan->created_at->format('d F Y H:i:s') : '-'); ?> WIB
+    </div>
 </body>
 </html>
 <?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/pdf/harian-baru.blade.php ENDPATH**/ ?>

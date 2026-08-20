@@ -50,6 +50,8 @@ class FonnteWebhookController extends Controller
         }
 
 
+        Log::info('Fonnte webhook FULL payload', $request->all());
+
         Log::info('Fonnte webhook received', [
             'sender' => $sender,
             'name' => $name,
@@ -67,8 +69,12 @@ class FonnteWebhookController extends Controller
             } elseif ($upperMessage === '2') {
                 Cache::forget($navigasiKey);
                 $upperMessage = 'LAPOR';
+            } elseif ($upperMessage === '3') {
+                Cache::forget($navigasiKey);
+                $this->fonnte->sendMessage($sender, "Terima kasih, sesi telah diakhiri. Semoga hari Anda menyenangkan!");
+                return response()->json(['status' => 'ok', 'action' => 'selesai_navigasi']);
             } else {
-                $this->fonnte->sendMessage($sender, "Pilihan tidak valid. Silakan balas 1 atau 2.\n\n1. Kembali ke Menu Utama\n2. Buat Laporan Baru");
+                $this->fonnte->sendMessage($sender, "Pilihan tidak valid. Silakan balas 1, 2, atau 3.\n\n1. Kembali ke Menu Utama\n2. Buat Laporan Baru\n3. Selesai");
                 return response()->json(['status' => 'ok', 'action' => 'invalid_navigasi']);
             }
         }
@@ -98,7 +104,7 @@ class FonnteWebhookController extends Controller
 
         // === Perintah: PING / TEST ===
         if (in_array($upperMessage, ['TEST', 'PING', 'HALO', 'HAI', 'P', 'HI', 'ASSALAMUALAIKUM', 'PAGI', 'SIANG', 'SORE', 'MALAM'])) {
-            $this->fonnte->sendMessage($sender, "Halo! 🤖 Bot WhatsApp Monitoring PKN aktif.\n\n" . $this->helpMessage());
+            $this->fonnte->sendMessage($sender, "Halo! Sistem WhatsApp Monitoring PKN aktif.\n\n" . $this->helpMessage());
             return response()->json(['status' => 'ok', 'action' => 'ping']);
         }
 
@@ -113,38 +119,35 @@ class FonnteWebhookController extends Controller
         // === Perintah: LAPOR ===
         if (Str::startsWith($upperMessage, 'LAPOR') || $isReportFormat) {
             if (trim($upperMessage) === 'LAPOR' && !$isReportFormat) {
-                $template = "📝 *FORM LAPORAN HARIAN*\n\n"
+                $template = "*FORM LAPORAN HARIAN*\n\n"
                     . "Silakan salin format berikut, isi datanya, lalu kirim kembali dalam SATU pesan (boleh disertai foto).\n\n"
                     . "==============================\n\n"
                     . "LAPORAN HARIAN\n\n"
-                    . "Tanggal :\n"
-                    . "Kontraktor / Kontraktor Pelaksana :\n"
-                    . "Konsultan :\n"
-                    . "PIC :\n"
-                    . "Minggu Ke :\n"
-                    . "Kegiatan :\n"
-                    . "Sub Kegiatan :\n"
                     . "Pekerjaan :\n"
                     . "Lokasi :\n"
-                    . "Cuaca :\n"
-                    . "Jam Kerja :\n\n"
-                    . "Pekerjaan Yang Dilakukan:\n"
-                    . "-\n\n"
-                    . "Material\n"
-                    . "- Nama Material :\n"
-                    . "- Volume :\n"
-                    . "- Satuan :\n\n"
-                    . "Alat\n"
-                    . "- Nama Alat : \n"
-                    . "- Jumlah:\n\n"
-                    . "Tenaga Kerja\n"
-                    . "Pekerja :\n"
-                    . "Tukang :\n"
-                    . "Mandor :\n"
-                    . "Pelaksana :\n\n"
-                    . "Progress :\n\n"
+                    . "Tanggal :\n"
+                    . "Minggu Ke :\n"
+                    . "Kontraktor Pelaksana :\n"
+                    . "Konsultan Pengawas :\n\n"
+                    . "Pekerjaan Yang Dilakukan :\n"
+                    . "- \n"
+                    . "- \n\n"
+                    . "Bahan / Material :\n"
+                    . "- \n"
+                    . "- \n\n"
+                    . "Tenaga Kerja :\n"
+                    . "Pekerja = \n"
+                    . "Tukang = \n"
+                    . "Mandor = \n"
+                    . "Pelaksana = \n\n"
+                    . "Alat :\n"
+                    . "- \n"
+                    . "- \n\n"
+                    . "Jam Kerja :\n"
+                    . "Cuaca :\n\n"
                     . "Kendala :\n\n"
-                    . "Keterangan :\n";
+                    . "Keterangan :\n\n"
+                    . "Catatan / Progress :\n";
 
                 $this->fonnte->sendMessage($sender, $template);
                 return response()->json(['status' => 'ok', 'action' => 'lapor_start']);
@@ -180,8 +183,8 @@ class FonnteWebhookController extends Controller
         if (!empty($missing)) {
             $this->fonnte->sendMessage(
                 $sender,
-                "❌ Laporan belum lengkap. Field berikut wajib diisi:\n• " .
-                implode("\n• ", $missing) .
+                "Laporan belum lengkap. Field berikut wajib diisi:\n- " .
+                implode("\n- ", $missing) .
                 "\n\n" . $this->contohFormat()
             );
             return response()->json(['status' => 'error', 'reason' => 'incomplete', 'missing' => $missing], 422);
@@ -198,17 +201,17 @@ class FonnteWebhookController extends Controller
             $laporan = $this->saveLaporan($karyawan, $report);
 
             if ($initialPhotoCount === 1) {
-                $reply = "✅ Laporan berhasil diterima beserta 1 foto.\n\n"
+                $reply = "Laporan berhasil diterima beserta 1 foto.\n\n"
                     . "Selanjutnya silakan kirim foto dokumentasi berikutnya (Maksimal 3 foto).\n\n"
                     . "Foto dapat dikirim satu per satu atau sekaligus.\n"
-                    . "Jika tidak ada dokumentasi tambahan, balas:\n"
-                    . "-";
+                    . "Jika tidak ada dokumentasi tambahan, balas dengan angka:\n"
+                    . "0";
             } else {
-                $reply = "✅ Laporan berhasil diterima.\n\n"
+                $reply = "Laporan berhasil diterima.\n\n"
                     . "Selanjutnya silakan kirim maksimal 3 foto dokumentasi pekerjaan.\n\n"
                     . "Foto dapat dikirim satu per satu atau sekaligus.\n"
-                    . "Jika tidak ada dokumentasi, balas:\n"
-                    . "-";
+                    . "Jika tidak ada dokumentasi, balas dengan angka:\n"
+                    . "0";
             }
 
             // Set state for photo uploads
@@ -231,7 +234,7 @@ class FonnteWebhookController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            $this->fonnte->sendMessage($sender, "❌ Terjadi kesalahan saat menyimpan laporan.\n\nSilakan coba lagi atau hubungi admin.");
+            $this->fonnte->sendMessage($sender, "Terjadi kesalahan saat menyimpan laporan.\n\nSilakan coba lagi atau hubungi admin.");
             return response()->json(['status' => 'error', 'reason' => $e->getMessage()], 500);
         }
     }
@@ -243,7 +246,7 @@ class FonnteWebhookController extends Controller
     {
         Cache::forget($stateKey);
         
-        $menu = $pesanSelesai . "\n\nSilakan pilih menu berikut:\n\n1. Kembali ke Menu Utama\n2. Buat Laporan Baru";
+        $menu = $pesanSelesai . "\n\nSilakan pilih menu berikut:\n\n1. Kembali ke Menu Utama\n2. Buat Laporan Baru\n3. Selesai";
         $this->fonnte->sendMessage($sender, $menu);
         
         Cache::put("navigasi_{$sender}", true, now()->addHours(1));
@@ -262,12 +265,12 @@ class FonnteWebhookController extends Controller
         
         $val = trim(Str::upper($message));
 
-        if ($val === '-' && $count === 0) {
-            return $this->endReportSession($sender, $stateKey, "✅ Laporan berhasil disimpan tanpa dokumentasi foto.");
+        if ($val === '0' && $count === 0) {
+            return $this->endReportSession($sender, $stateKey, "Laporan berhasil disimpan tanpa dokumentasi foto.");
         }
 
-        if ($val === '-' || $val === 'SELESAI') {
-            return $this->endReportSession($sender, $stateKey, "✅ Dokumentasi berhasil disimpan. Terima kasih, laporan telah selesai.");
+        if ($val === '0' || $val === 'SELESAI') {
+            return $this->endReportSession($sender, $stateKey, "Dokumentasi berhasil disimpan. Terima kasih, laporan telah selesai.");
         }
 
         if ($mediaUrl !== '') {
@@ -280,18 +283,21 @@ class FonnteWebhookController extends Controller
             $count++;
             
             if ($count >= 3) {
-                return $this->endReportSession($sender, $stateKey, "Informasi: 3 foto telah diterima.\n\n✅ Dokumentasi berhasil disimpan. Terima kasih, laporan telah selesai.");
+                Cache::forget('foto_reply_pending_' . $sender);
+                return $this->endReportSession($sender, $stateKey, "Informasi: 3 foto telah diterima.\n\nDokumentasi berhasil disimpan. Terima kasih, laporan telah selesai.");
             } else {
                 $state['count'] = $count;
                 Cache::put($stateKey, $state, now()->addHours(1));
                 
-                $this->fonnte->sendMessage($sender, "✅ Foto ke-{$count} berhasil diterima. Kirim foto berikutnya atau ketik Selesai jika sudah.");
-                return response()->json(['status' => 'ok', 'action' => 'foto_received', 'count' => $count]);
+                Cache::put('foto_reply_pending_' . $sender, $count, now()->addMinutes(1));
+                \App\Jobs\SendFotoReplyJob::dispatch($sender, $count)->delay(now()->addSeconds(3));
+                
+                return response()->json(['status' => 'ok', 'action' => 'foto_received_delayed', 'count' => $count]);
             }
         }
 
-        // Kalau bukan '-' dan tidak ada foto
-        $this->fonnte->sendMessage($sender, "Mohon kirimkan foto dokumentasi, atau ketik *Selesai* / *-* untuk mengakhiri.");
+        // Kalau bukan '0' dan tidak ada foto
+        $this->fonnte->sendMessage($sender, "Mohon kirimkan foto dokumentasi, atau balas 0 untuk mengakhiri.");
         return response()->json(['status' => 'ok', 'action' => 'wait_foto']);
     }
 
@@ -317,15 +323,16 @@ class FonnteWebhookController extends Controller
             return response()->json(['status' => 'ok', 'action' => 'status_empty']);
         }
 
-        $text = "📊 *5 Laporan Terakhir Anda:*\n\n";
-        foreach ($laporans as $i => $lap) {
-            $emoji = match ($lap->status) {
-                Laporan::STATUS_DISETUJUI => '✅',
-                Laporan::STATUS_DITOLAK => '❌',
-                default => '⏳',
+        $text = "*5 Laporan Terakhir Anda:*\n\n";
+        foreach ($laporans as $lap) {
+            $statusEmoji = match ($lap->status) {
+                Laporan::STATUS_DISETUJUI => '[Disetujui]',
+                Laporan::STATUS_DITOLAK => '[Ditolak]',
+                default => '[Menunggu]',
             };
-            $text .= ($i + 1) . ". {$emoji} {$lap->nama_proyek}\n"
-                . "   📅 {$lap->tanggal->format('d M Y')} — {$lap->status}\n\n";
+
+            $text .= "• Proyek: {$lap->nama_proyek}\n"
+                . "   Tanggal: {$lap->tanggal->format('d M Y')} — {$statusEmoji}\n\n";
         }
 
         $text .= "---\n" . $this->helpMessage();
@@ -355,36 +362,74 @@ class FonnteWebhookController extends Controller
             $lowerLine = Str::lower($lineTrim);
             
             // Detect sections
-            if (str_starts_with($lowerLine, 'pekerjaan yang dilakukan')) {
+            if (preg_match('/^pekerjaan\s+yang\s+dilakukan\s*:?/i', $lineTrim)) {
                 $section = 'pekerjaan';
                 continue;
-            } elseif ($lowerLine === 'material') {
+            } elseif (preg_match('/^(?:bahan|material)(?:\s*\/\s*(?:bahan|material))?\s*:?/i', $lineTrim)) {
                 $section = 'material';
                 if (!empty($currentMaterial)) $materials[] = $currentMaterial;
                 $currentMaterial = [];
                 continue;
-            } elseif ($lowerLine === 'alat') {
+            } elseif (preg_match('/^(?:per)?alat(?:an)?\s*:?/i', $lineTrim)) {
                 $section = 'alat';
                 if (!empty($currentAlat)) $alats[] = $currentAlat;
                 $currentAlat = [];
                 continue;
-            } elseif ($lowerLine === 'tenaga kerja') {
+            } elseif (preg_match('/^tenaga\s+kerja\s*:?/i', $lineTrim)) {
                 $section = 'tenaga';
                 continue;
+            } elseif (preg_match('/^kendala\s*:?/i', $lineTrim)) {
+                $section = 'kendala';
+                $lineTrim = trim(preg_replace('/^kendala\s*:?/i', '', $lineTrim));
+                if ($lineTrim === '') continue;
+            } elseif (preg_match('/^keterangan\s*:?/i', $lineTrim)) {
+                $section = 'keterangan';
+                $lineTrim = trim(preg_replace('/^keterangan\s*:?/i', '', $lineTrim));
+                if ($lineTrim === '') continue;
+            } elseif (preg_match('/^(catatan(?:\s*\/\s*progress)?|progress)\s*:?/i', $lineTrim)) {
+                $section = 'catatan_progress';
+                $lineTrim = trim(preg_replace('/^(catatan(?:\s*\/\s*progress)?|progress)\s*:?/i', '', $lineTrim));
+                if ($lineTrim === '') continue;
             }
 
             // Parse based on section
-            if ($section === 'pekerjaan') {
-                if (str_starts_with($lineTrim, '-')) {
-                    $pekerjaanYangDilakukan[] = trim(substr($lineTrim, 1));
-                } elseif (str_contains($lineTrim, ':')) {
+            $hasColon = str_contains($lineTrim, ':');
+            if (!$hasColon && str_contains($lineTrim, '=')) {
+                $hasColon = true;
+                $lineTrim = str_replace('=', ':', $lineTrim);
+            }
+            
+            // Prevent taking over valid general fields
+            if ($hasColon && in_array($section, ['kendala', 'keterangan', 'catatan', 'progress', 'catatan_progress', 'pekerjaan', 'material', 'alat', 'tenaga'])) {
+                $testLabel = explode(':', $lineTrim, 2)[0];
+                if ($this->mapLabelToField(trim(preg_replace('/^[\-\d\.]+\s*/', '', $testLabel)))) {
                     $section = 'general';
                 }
             }
 
-            if (str_contains($lineTrim, ':')) {
+            if (in_array($section, ['kendala', 'keterangan', 'catatan', 'progress', 'catatan_progress'])) {
+                $targetField = in_array($section, ['progress', 'catatan_progress', 'catatan']) ? 'catatan' : $section;
+                
+                if (in_array($section, ['progress', 'catatan_progress'])) {
+                    if (preg_match('/(?:progress|mencapai)[^:]*?:?\s*([\d,\.]+)\s*%/i', $lineTrim, $matches)) {
+                        if (stripos($lineTrim, 'harian') === false && stripos($lineTrim, 'target') === false) {
+                            $report['progress'] = (int) str_replace(',', '.', $matches[1]);
+                        }
+                    }
+                }
+
+                $report[$targetField] = isset($report[$targetField]) ? $report[$targetField] . "\n" . $lineTrim : $lineTrim;
+                continue;
+            }
+
+            if ($section === 'pekerjaan') {
+                $pekerjaanYangDilakukan[] = preg_replace('/^[\-\*\d\.]+\s*/', '', $lineTrim);
+                continue;
+            }
+
+            if ($hasColon) {
                 [$label, $value] = array_map('trim', explode(':', $lineTrim, 2));
-                $labelClean = str_replace('-', '', $label); // remove list hyphen
+                $labelClean = preg_replace('/^[\-\d\.]+\s*/', '', $label); // remove list hyphen and numbers
                 $labelClean = trim($labelClean);
                 $value = trim($value);
 
@@ -397,6 +442,17 @@ class FonnteWebhookController extends Controller
                         $currentMaterial['volume'] = (float) str_replace(',', '.', $value);
                     } elseif ($lowerLabel === 'satuan') {
                         $currentMaterial['satuan'] = $value;
+                    } else {
+                        // Label is not a standard keyword, treat as "Name : Volume Unit"
+                        $nama = preg_replace('/^[\-\*\d\.]+\s*/', '', $label); // strip leading bullets
+                        $vol = 1;
+                        $sat = 'ls';
+                        if (preg_match('/^([\d,\.]+)\s*(.*)$/', $value, $m)) {
+                            $vol = (float) str_replace(',', '.', $m[1]);
+                            $sat = trim($m[2]) ?: 'ls';
+                        }
+                        if (!empty($currentMaterial)) $materials[] = $currentMaterial;
+                        $currentMaterial = ['nama_material' => trim($nama), 'volume' => $vol, 'satuan' => $sat];
                     }
                 } elseif ($section === 'alat') {
                     $lowerLabel = strtolower($labelClean);
@@ -405,6 +461,15 @@ class FonnteWebhookController extends Controller
                         $currentAlat = ['nama_alat' => $value, 'jumlah' => 1];
                     } elseif ($lowerLabel === 'jumlah') {
                         $currentAlat['jumlah'] = (int) $value;
+                    } else {
+                        // Label is not a standard keyword, treat as "Name : Jumlah Unit"
+                        $nama = preg_replace('/^[\-\*\d\.]+\s*/', '', $label); // strip leading bullets
+                        $jum = 1;
+                        if (preg_match('/^([\d,\.]+)\s*(.*)$/', $value, $m)) {
+                            $jum = (int) str_replace(',', '.', $m[1]);
+                        }
+                        if (!empty($currentAlat)) $alats[] = $currentAlat;
+                        $currentAlat = ['nama_alat' => trim($nama), 'jumlah' => $jum];
                     }
                 } elseif ($section === 'tenaga') {
                      $lowerLabel = strtolower($labelClean);
@@ -417,6 +482,7 @@ class FonnteWebhookController extends Controller
                 } else {
                     $field = $this->mapLabelToField($labelClean);
                     if ($field === 'jam_kerja') {
+                        $value = str_replace(['–', '—'], '-', $value); // Replace en-dash/em-dash with standard hyphen
                         $parts = explode('-', $value);
                         if (count($parts) >= 2) {
                             $report['jam_mulai'] = trim($parts[0]);
@@ -427,6 +493,33 @@ class FonnteWebhookController extends Controller
                     } elseif ($field && $value !== '') {
                         $report[$field] = $value;
                     }
+                }
+            } else {
+                // Fallback for inline items like "Semen PCC (100 sak)" or "1 Unit Concrete Pump"
+                $inlineText = preg_replace('/^[\-\*\d\.]+\s*/', '', $lineTrim); // remove numbering
+                if ($section === 'material') {
+                    $vol = 1;
+                    $sat = 'ls';
+                    $nama = $inlineText;
+                    if (preg_match('/^(.*?)\s*\(?([\d,\.]+)\s*([a-zA-Z]+)\)?$/', $inlineText, $m)) {
+                        $nama = trim($m[1]);
+                        $vol = (float) str_replace(',', '.', $m[2]);
+                        $sat = trim($m[3]);
+                    }
+                    if (!empty($currentMaterial)) $materials[] = $currentMaterial;
+                    $currentMaterial = ['nama_material' => $nama, 'volume' => $vol, 'satuan' => $sat];
+                } elseif ($section === 'alat') {
+                    $jum = 1;
+                    $nama = $inlineText;
+                    if (preg_match('/^([\d]+)\s*(?:unit|buah|set)?\s*(.*)$/i', $inlineText, $m)) {
+                        $jum = (int) $m[1];
+                        $nama = trim($m[2]);
+                    } elseif (preg_match('/^(.*?)\s*\(?([\d]+)\s*(?:unit|buah|set)?\)?$/i', $inlineText, $m)) {
+                        $nama = trim($m[1]);
+                        $jum = (int) $m[2];
+                    }
+                    if (!empty($currentAlat)) $alats[] = $currentAlat;
+                    $currentAlat = ['nama_alat' => $nama, 'jumlah' => $jum];
                 }
             }
         }
@@ -473,6 +566,7 @@ class FonnteWebhookController extends Controller
             'kontraktor pelaksana' => 'kontraktor',
             'kontraktor / kontraktor pelaksana' => 'kontraktor',
             'konsultan' => 'konsultan',
+            'konsultan pengawas' => 'konsultan',
             'pic' => 'pic',
             'minggu' => 'minggu_ke',
             'minggu ke' => 'minggu_ke',
@@ -516,7 +610,7 @@ class FonnteWebhookController extends Controller
                 'konsultan' => $report['konsultan'] ?? null,
                 'pic' => $report['pic'] ?? null,
                 'minggu_ke' => $report['minggu_ke'] ?? null,
-                'tanggal' => Carbon::parse($report['tanggal'] ?? now())->toDateString(),
+                'tanggal' => Carbon::parse(str_ireplace(['januari','februari','maret','mei','juni','juli','agustus','oktober','desember'], ['january','february','march','may','june','july','august','october','december'], $report['tanggal'] ?? now()))->toDateString(),
                 'progress' => isset($report['progress']) ? (int) $report['progress'] : null,
                 'jam_mulai' => $report['jam_mulai'] ?? null,
                 'jam_selesai' => $report['jam_selesai'] ?? null,
@@ -769,16 +863,16 @@ class FonnteWebhookController extends Controller
 
     protected function helpMessage(): string
     {
-        return "🤖 *Silakan pilih menu dengan membalas angka:*\n\n"
-            . "*[1]* 📝 Isi Laporan Harian (Interaktif)\n"
-            . "*[2]* ℹ️ Cek Status Laporan Terakhir\n"
-            . "*[3]* 💡 Bantuan / Panduan Lengkap\n"
-            . "*[0]* 🔄 Batal / Buat Ulang Percakapan";
+        return "*Silakan pilih menu dengan membalas angka:*\n\n"
+            . "1. Isi Laporan Harian (Interaktif)\n"
+            . "2. Cek Riwayat Laporan Terakhir\n"
+            . "3. Bantuan / Panduan Lengkap\n"
+            . "0. Batal / Buat Ulang Percakapan";
     }
 
     protected function contohFormat(): string
     {
-        return "📝 *FORM LAPORAN HARIAN*\n\n"
+        return "*FORM LAPORAN HARIAN*\n\n"
             . "Silakan salin format berikut, isi datanya, lalu kirim kembali dalam SATU pesan (boleh disertai foto).\n\n"
             . "==============================\n\n"
                     . "LAPORAN HARIAN\n\n"

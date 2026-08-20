@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Traits\RotatesPortraitImages;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -13,6 +14,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelController extends Controller
 {
+    use RotatesPortraitImages;
+
     public function harian(Laporan $laporan)
     {
         $laporan->load(['fotos']);
@@ -90,9 +93,11 @@ class ExcelController extends Controller
             $this->border($sheet, "A{$start}:J{$end}");
 
             if ($foto) {
-                $path = public_path('storage/' . $foto->foto);
-                if (is_file($path)) {
-                    $this->addImage($sheet, $path, "B" . ($start + 1), 430, 235);
+                $path = public_path('storage/' . ltrim($foto->foto, '/\\'));
+                if (file_exists($path)) {
+                    $this->ensureLandscapeImage($path);
+                    
+                    $this->addImage($sheet, $path, "B" . ($start + 1), 400, 300);
                 } else {
                     $sheet->setCellValue("B{$start}", 'FOTO TIDAK DITEMUKAN');
                     $this->center($sheet, "B{$start}:G{$end}");
@@ -102,6 +107,10 @@ class ExcelController extends Controller
                 $this->center($sheet, "B{$start}:G{$end}");
             }
         }
+        
+        $lastRow = (isset($end) ? $end : $headerRow) + 2;
+        $sheet->setCellValue("A{$lastRow}", "Waktu Pengiriman Laporan (Via Bot WA) : " . ($laporan->created_at ? $laporan->created_at->format('d F Y H:i:s') : '-') . " WIB");
+        $sheet->getStyle("A{$lastRow}")->getFont()->setItalic(true)->setSize(10)->getColor()->setRGB('555555');
 
         $sheet->getPageSetup()->setOrientation('portrait')->setPaperSize('9');
         $sheet->getPageMargins()->setTop(0.25)->setRight(0.25)->setBottom(0.25)->setLeft(0.25);
@@ -120,7 +129,12 @@ class ExcelController extends Controller
             return;
         }
         $drawing = new Drawing();
-        $drawing->setPath($path)->setCoordinates($cell)->setWidth($width)->setHeight($height)->setWorksheet($sheet);
+        $drawing->setPath($path)
+                ->setCoordinates($cell)
+                ->setResizeProportional(false)
+                ->setWidth($width)
+                ->setHeight($height)
+                ->setWorksheet($sheet);
     }
 
     private function border($sheet, string $range): void

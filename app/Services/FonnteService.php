@@ -99,6 +99,11 @@ class FonnteService
                     'response' => $result,
                     'target' => $data['target'] ?? null,
                 ]);
+            } else {
+                Log::info('Fonnte API success', [
+                    'response' => $result,
+                    'target' => $data['target'] ?? null,
+                ]);
             }
 
             return $result;

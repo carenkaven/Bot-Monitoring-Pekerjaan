@@ -131,16 +131,35 @@
 
         function pilihFormatLaporan(judul, pdfUrl, excelUrl) {
             Swal.fire({
-                title: judul,
-                text: 'Pilih format laporan yang ingin diunduh:',
-                icon: 'question',
+                title: `<span class="text-lg font-semibold text-gray-900">${judul}</span>`,
+                html: `
+                    <div class="flex flex-col gap-3 mt-4">
+                        <button onclick="Swal.clickConfirm()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-red-500 hover:bg-red-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-red-500 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm group-hover:text-red-600 transition-colors">Unduh PDF</div>
+                            </div>
+                        </button>
+                        <button onclick="Swal.clickDeny()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-green-500 hover:bg-green-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-green-500 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm group-hover:text-green-600 transition-colors">Unduh Excel</div>
+                            </div>
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showDenyButton: false,
                 showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: 'PDF',
-                denyButtonText: 'Excel',
                 cancelButtonText: 'Batal',
-                confirmButtonColor: '#dc2626',
-                denyButtonColor: '#16a34a'
+                customClass: {
+                    cancelButton: 'px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border-none mt-2 font-medium text-sm',
+                    popup: 'rounded-2xl pb-6',
+                }
             }).then((result) => {
                 if (result.isConfirmed) window.open(pdfUrl, '_blank');
                 if (result.isDenied && excelUrl) window.location.href = excelUrl;
@@ -149,19 +168,36 @@
         }
 
         function pilihJenisLaporanMingguan(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel) {
-            // [DISEMBUNYIKAN SEMENTARA - ATAS PERMINTAAN USER: JANGAN DIHAPUS]
-            /*
             Swal.fire({
-                title: 'Jenis Laporan Mingguan',
-                text: 'Pilih format template yang ingin digunakan:',
-                icon: 'question',
+                title: '<span class="text-lg font-semibold text-gray-900">Pilih Template Mingguan</span>',
+                html: `
+                    <div class="flex flex-col gap-3 mt-4">
+                        <button onclick="Swal.clickConfirm()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-gray-900 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm transition-colors">Template Lama</div>
+                            </div>
+                        </button>
+                        <button onclick="Swal.clickDeny()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-gray-900 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm transition-colors">Template Baru</div>
+                            </div>
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showDenyButton: false,
                 showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: 'Template Lama (S-Curve)',
-                denyButtonText: 'Template Baru (Fisik)',
                 cancelButtonText: 'Batal',
-                confirmButtonColor: '#dc2626',
-                denyButtonColor: '#ea580c'
+                customClass: {
+                    cancelButton: 'px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border-none mt-2 font-medium text-sm',
+                    popup: 'rounded-2xl pb-6',
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     pilihFormatLaporan('Laporan Mingguan Lama', urlLamaPdf, urlLamaExcel);
@@ -169,9 +205,46 @@
                     pilihFormatLaporan('Laporan Mingguan Baru', urlBaruPdf, urlBaruExcel);
                 }
             });
-            */
-            // LANGSUNG ARAHKAN KE LAPORAN BARU
-            pilihFormatLaporan('Laporan Mingguan', urlBaruPdf, urlBaruExcel);
+        }
+
+        function pilihJenisLaporanHarian(urlLamaPdf, urlLamaExcel, urlBaruPdf, urlBaruExcel) {
+            Swal.fire({
+                title: '<span class="text-lg font-semibold text-gray-900">Pilih Template Harian</span>',
+                html: `
+                    <div class="flex flex-col gap-3 mt-4">
+                        <button onclick="Swal.clickConfirm()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-gray-900 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm transition-colors">Template Lama</div>
+                            </div>
+                        </button>
+                        <button onclick="Swal.clickDeny()" class="flex items-center gap-4 w-full p-4 border border-gray-200 hover:border-gray-900 hover:bg-gray-50 rounded-xl transition-all text-left bg-white group">
+                            <div class="text-gray-400 group-hover:text-gray-900 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 text-sm transition-colors">Template Baru</div>
+                            </div>
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showDenyButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'Batal',
+                customClass: {
+                    cancelButton: 'px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors border-none mt-2 font-medium text-sm',
+                    popup: 'rounded-2xl pb-6',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pilihFormatLaporan('Laporan Harian Lama', urlLamaPdf, urlLamaExcel);
+                } else if (result.isDenied) {
+                    pilihFormatLaporan('Laporan Harian Baru', urlBaruPdf, urlBaruExcel);
+                }
+            });
         }
     </script>
     <?php if(session('success')): ?>

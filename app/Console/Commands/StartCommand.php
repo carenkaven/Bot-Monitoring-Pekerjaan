@@ -19,7 +19,7 @@ class StartCommand extends Command
         $this->info('Bot WhatsApp dijalankan melalui Fonnte (cloud).');
         $this->info('Press Ctrl+C to stop them all.');
 
-        $command = 'npx concurrently -c "blue,magenta,green" "php artisan serve" "npm run dev" "ngrok http 8000" --names="server,vite,ngrok" --kill-others';
+        $command = 'npx concurrently -c "blue,magenta,green,yellow" "php artisan serve" "npm run dev" "ngrok http 8000" "php artisan queue:work" --names="server,vite,ngrok,queue" --kill-others';
 
         passthru($command);
     }

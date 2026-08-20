@@ -12,15 +12,14 @@
         </p>
     </div>
     <div class="flex flex-wrap gap-2">
-        <a href="<?php echo e(route('laporan.index')); ?>" class="inline-flex items-center justify-center rounded-md bg-gray-200 py-2.5 px-6 font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+        <a href="<?php echo e(route('laporan.index')); ?>" class="inline-flex items-center justify-center rounded-full bg-slate-100 py-2.5 px-6 font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition">
             Kembali
         </a>
-        
-        <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '<?php echo e(route('pdf.harian.baru', $laporan)); ?>', '<?php echo e(route('excel.harian.baru', $laporan)); ?>')" class="inline-flex items-center justify-center rounded-md bg-orange-600 py-2.5 px-6 font-medium text-white hover:bg-orange-700 transition">
-            Cetak Laporan Harian
+        <button type="button" onclick="pilihJenisLaporanHarian('<?php echo e(route('pdf.harian', $laporan)); ?>', '<?php echo e(route('excel.harian', $laporan)); ?>', '<?php echo e(route('pdf.harian.baru', $laporan)); ?>', '<?php echo e(route('excel.harian.baru', $laporan)); ?>')" class="inline-flex items-center justify-center rounded-full bg-orange-500 py-2.5 px-6 font-medium text-white hover:bg-orange-600 transition shadow-sm hover:shadow-md">
+            Cetak Laporan
         </button>
         <?php if($laporan->status==='Menunggu'): ?>
-        <a href="<?php echo e(route('verifikasi.show', $laporan)); ?>" class="inline-flex items-center justify-center rounded-md bg-green-500 py-2.5 px-6 font-medium text-white hover:bg-green-600 transition">
+        <a href="<?php echo e(route('verifikasi.show', $laporan)); ?>" class="inline-flex items-center justify-center rounded-full bg-emerald-500 py-2.5 px-6 font-medium text-white hover:bg-emerald-600 transition shadow-sm hover:shadow-md">
             Verifikasi
         </a>
         <?php endif; ?>
@@ -38,7 +37,7 @@
                 <h3 class="font-bold text-gray-800 dark:text-white">Informasi Proyek</h3>
             </div>
             <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                     <?php $__currentLoopData = [
                         'Nama Proyek' => $laporan->nama_proyek,
                         'Kegiatan' => $laporan->kegiatan,
@@ -51,12 +50,12 @@
                         'Minggu Ke' => $laporan->minggu_ke,
                         'Tanggal' => $laporan->tanggal->format('d M Y'),
                     ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k => $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="border-b border-gray-100 pb-3 dark:border-gray-800">
-                        <span class="block text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 mb-1"><?php echo e($k); ?></span>
-                        <span class="block text-sm font-medium text-gray-800 dark:text-gray-200"><?php echo e($v ?: '-'); ?></span>
+                    <div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1"><?php echo e($k); ?></dt>
+                        <dd class="text-sm font-medium text-slate-800 dark:text-slate-200"><?php echo e($v ?: '-'); ?></dd>
                     </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </div>
+                </dl>
             </div>
         </div>
 
@@ -233,6 +232,13 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400"><?php echo e($laporan->karyawan->jabatan ?? '-'); ?></p>
                         <p class="mt-1 text-xs text-gray-400 dark:text-gray-500"><?php echo e($laporan->karyawan->no_hp ?? '-'); ?></p>
                     </div>
+                </div>
+                <div class="mt-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <p class="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 mb-1">Dikirim Melalui WA Pada</p>
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        <?php echo e($laporan->created_at ? $laporan->created_at->format('d M Y, H:i:s') . ' WIB' : '-'); ?>
+
+                    </p>
                 </div>
             </div>
         </div>

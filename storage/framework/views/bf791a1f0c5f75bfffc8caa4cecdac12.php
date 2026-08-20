@@ -56,13 +56,16 @@ table{
 }
 
 .foto{
-    max-width:100%;
-    max-height:260px;
+    width:480px;
+    height:360px;
+    object-fit:cover;
+    margin: 0 auto;
+    display: block;
 }
 
 .foto-box{
     padding:5px;
-    height:270px;
+    height:370px;
 }
 
 .info td{
@@ -81,8 +84,8 @@ table{
 
 <td width="12%" class="center">
 
-<?php if(file_exists(public_path('images/logo-ras.png'))): ?>
-<img src="<?php echo e(public_path('images/logo-ras.png')); ?>" class="logo">
+<?php if(file_exists(public_path('images/logo-ras.webp'))): ?>
+<img src="<?php echo e(public_path('images/logo-ras.webp')); ?>" class="logo">
 <?php endif; ?>
 
 </td>
@@ -218,7 +221,7 @@ Keterangan
 
 <td class="border foto-box center middle">
 
-<img src="<?php echo e($fotoData['src']); ?>" class="foto">
+<img src="<?php echo e($fotoData['src']); ?>" width="480" height="360" style="object-fit:cover; display:block; margin: 0 auto;">
 
 </td>
 
@@ -305,4 +308,5 @@ Belum ada dokumentasi pekerjaan.
 
 </table>
 
-<br><br><?php /**PATH C:\laragon\www\Bot-Monitoring-Pekerjaan\resources\views/pdf/harian.blade.php ENDPATH**/ ?>
+<br><br>
+<?php /**PATH C:\PROJECT FANY\Bot-Monitoring-Pekerjaan\resources\views/pdf/harian.blade.php ENDPATH**/ ?>

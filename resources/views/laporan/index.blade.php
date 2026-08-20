@@ -87,7 +87,7 @@
                                     <button type="button" onclick="pilihFormatLaporan('Laporan Harian Lama', '{{ route('pdf.harian', $laporan->id) }}', '{{ route('excel.harian', $laporan->id) }}')"
                                         class="inline-flex items-center justify-center rounded-lg bg-red-500/10 px-2 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500 hover:text-white transition whitespace-nowrap">Lama</button>
                                     --}}
-                                    <button type="button" onclick="pilihFormatLaporan('Cetak Laporan Harian', '{{ route('pdf.harian.baru', $laporan->id) }}', '{{ route('excel.harian.baru', $laporan->id) }}')"
+                                    <button type="button" onclick="pilihJenisLaporanHarian('{{ route('pdf.harian', $laporan->id) }}', '{{ route('excel.harian', $laporan->id) }}', '{{ route('pdf.harian.baru', $laporan->id) }}', '{{ route('excel.harian.baru', $laporan->id) }}')"
                                         class="inline-flex items-center justify-center rounded-lg bg-orange-500/10 px-2 py-1.5 text-xs font-semibold text-orange-600 hover:bg-orange-500 hover:text-white transition whitespace-nowrap">Cetak</button>
                                 </div>
                             </td>

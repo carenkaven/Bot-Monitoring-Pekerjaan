@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Traits\RotatesPortraitImages;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class DailyNewPdfController extends Controller
 {
+    use RotatesPortraitImages;
+
     public function harian(Laporan $laporan)
     {
         $laporan->load(['materials', 'tenagas', 'alats', 'pekerjaans', 'fotos']);
@@ -16,6 +19,9 @@ class DailyNewPdfController extends Controller
         $fotoDokumentasi = $laporan->fotos->take(3)->map(function ($foto) {
             $path = realpath(storage_path('app/public/' . ltrim($foto->foto, '/\\')));
             if (!$path || !is_readable($path)) return null;
+
+            // Pastikan orientasi landscape
+            $this->ensureLandscapeImage($path);
 
             // DomPDF di Windows menerima path lokal C:/...; format file:///C:/...
             // justru dibaca sebagai /C:/... dan menghasilkan placeholder silang.

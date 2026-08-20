@@ -107,6 +107,12 @@
                 <div class="text-center py-4">
                     @include('partials.status-badge', ['status' => $laporan->status])
                 </div>
+                <div class="mt-2 border-t border-slate-100 pt-4 text-center">
+                    <p class="text-xs uppercase text-slate-500 mb-1">Dikirim Melalui WA Pada</p>
+                    <p class="text-sm font-medium text-slate-800">
+                        {{ $laporan->created_at ? $laporan->created_at->format('d M Y, H:i:s') . ' WIB' : '-' }}
+                    </p>
+                </div>
                 @if($laporan->catatan)
                 <div class="mt-4 bg-slate-50 rounded-xl p-3 text-sm text-slate-700">
                     <p class="text-xs uppercase text-slate-500 mb-1">Catatan</p>
