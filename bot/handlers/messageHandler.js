@@ -24,6 +24,16 @@ export const handleIncomingMessage = async (sock, m) => {
                           msgBody?.ephemeralMessage?.message?.imageMessage?.caption ||
                           '';
 
+        console.log(`\n[Pesan Masuk] Dari: ${remoteJid} | fromMe: ${msg.key.fromMe}`);
+        console.log(`[Teks]: ${messageText}`);
+
+        // Jika Anda melakukan self-testing (chat ke nomor sendiri), bot harus mengabaikan pesannya sendiri 
+        // untuk mencegah infinite loop atau step wizard yang otomatis terisi oleh balasan bot.
+        // Jika teks berisi kata-kata dari bot, abaikan!
+        if (msg.key.fromMe && (messageText.includes('MENU UTAMA') || messageText.includes('Proses pelaporan') || messageText.includes('BANTUAN'))) {
+            return;
+        }
+
         const cleanText = messageText.trim();
         const upperText = cleanText.toUpperCase();
         const isInSession = !!getSession(phone);
