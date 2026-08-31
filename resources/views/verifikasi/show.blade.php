@@ -23,8 +23,10 @@
         <div class="p-6">
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</span>
-                    <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ $laporan->tanggal }}</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Waktu Masuk WhatsApp</span>
+                    <span class="text-sm font-semibold text-gray-800 dark:text-white">
+                        {{ $laporan->created_at ? $laporan->created_at->copy()->timezone('Asia/Makassar')->locale('id')->isoFormat('D MMMM YYYY, HH:mm') . ' WITA' : '-' }}
+                    </span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</span>

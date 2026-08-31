@@ -100,26 +100,75 @@
             </div>
         </div>
 
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 px-6 py-6">
-            <h2 class="text-xl font-bold text-black dark:text-white mb-6">Verifikasi Terbaru</h2>
-            <div class="flex flex-col gap-4">
+        <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-black dark:text-white">Verifikasi Terbaru</h2>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Aktivitas persetujuan laporan paling baru.</p>
+                </div>
+                <a href="{{ route('verifikasi.riwayat') }}" class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:text-blue-400 dark:hover:bg-blue-500/10 dark:hover:text-blue-300">
+                    Lihat riwayat
+                </a>
+            </div>
+
+            <div class="space-y-3">
                 @forelse($verifikasiTerbaru as $v)
-                <div class="flex items-center justify-between border-l-4 {{ $v->status==='Disetujui' ? 'border-green-500' : 'border-red-500' }} pl-4 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-r-lg">
-                    <div class="flex flex-col">
-                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{{ $v->laporan->nama_proyek ?? '-' }}</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ optional($v->tanggal_verifikasi)->diffForHumans() }}</span>
-                    </div>
-                    <div>
-                        <span class="inline-flex rounded-full text-xs font-semibold px-3 py-1 text-{{ $v->status==='Disetujui' ? 'green' : 'red' }}-600 bg-{{ $v->status==='Disetujui' ? 'green' : 'red' }}-100 dark:bg-{{ $v->status==='Disetujui' ? 'green' : 'red' }}-900/30 dark:text-{{ $v->status==='Disetujui' ? 'green' : 'red' }}-400">{{ $v->status }}</span>
-                    </div>
-                </div>
+                    @php
+                        $isApproved = $v->status === 'Disetujui';
+                        $statusClass = $isApproved
+                            ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
+                            : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20';
+                        $iconClass = $isApproved
+                            ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                            : 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400';
+                    @endphp
+                    <a href="{{ route('verifikasi.show', $v->laporan_id) }}" class="group grid grid-cols-[auto,minmax(0,1fr)] gap-x-3 rounded-xl border border-gray-100 bg-gray-50 p-4 transition hover:border-blue-200 hover:bg-blue-50/60 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-gray-800 dark:bg-gray-800/50 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/5">
+                        <span class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full {{ $iconClass }}">
+                            @if($isApproved)
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                            @else
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            @endif
+                        </span>
+
+                        <div class="min-w-0">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <p class="min-w-0 flex-1 break-words text-sm font-semibold leading-5 text-gray-900 transition group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
+                                    {{ $v->laporan->nama_proyek ?? 'Laporan tanpa nama proyek' }}
+                                </p>
+                                <span title="{{ $v->status }}" aria-label="Status: {{ $v->status }}" class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-1 ring-inset {{ $statusClass }}">
+                                    @if($isApproved)
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    @else
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                                <span>{{ $v->tanggal_verifikasi?->copy()->locale('id')->diffForHumans() ?? '-' }}</span>
+                                <span aria-hidden="true" class="text-gray-300 dark:text-gray-600">•</span>
+                                <span>oleh {{ $v->user->name ?? 'Administrator' }}</span>
+                            </div>
+                        </div>
+                    </a>
                 @empty
-                <div class="py-8 text-center text-sm font-medium text-gray-500 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-                    Belum ada riwayat verifikasi.
-                </div>
+                    <div class="rounded-xl border border-dashed border-gray-200 px-4 py-10 text-center dark:border-gray-700">
+                        <svg class="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400">Belum ada riwayat verifikasi.</p>
+                    </div>
                 @endforelse
             </div>
-        </div>
+        </section>
     </div>
 
     {{-- RECENT REPORTS TABLE --}}
