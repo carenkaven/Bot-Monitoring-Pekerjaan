@@ -104,7 +104,7 @@ class FonnteWebhookController extends Controller
 
         // === Perintah: PING / TEST ===
         if (in_array($upperMessage, ['TEST', 'PING', 'HALO', 'HAI', 'P', 'HI', 'ASSALAMUALAIKUM', 'PAGI', 'SIANG', 'SORE', 'MALAM'])) {
-            $this->fonnte->sendMessage($sender, "Halo! Sistem WhatsApp Monitoring PKN aktif.\n\n" . $this->helpMessage());
+            $this->fonnte->sendMessage($sender, "Halo! Sistem WhatsApp Monitoring aktif.\n\n" . $this->helpMessage());
             return response()->json(['status' => 'ok', 'action' => 'ping']);
         }
 
