@@ -41,6 +41,13 @@ return [
 
     'fonnte' => [
         'token' => env('FONNTE_TOKEN'),
+        // Guardrails for a consent-based, inbound-only support bot. These
+        // settings deliberately pace replies and stop a single conversation
+        // from producing an excessive number of outbound messages.
+        'minimum_reply_interval_seconds' => (int) env('FONNTE_MIN_REPLY_INTERVAL_SECONDS', 10),
+        'recipient_cooldown_seconds' => (int) env('FONNTE_RECIPIENT_COOLDOWN_SECONDS', 15),
+        'daily_reply_limit' => (int) env('FONNTE_DAILY_REPLY_LIMIT', 60),
+        'inbound_dedup_seconds' => (int) env('FONNTE_INBOUND_DEDUP_SECONDS', 20),
     ],
 
 ];

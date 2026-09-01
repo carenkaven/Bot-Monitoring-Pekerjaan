@@ -11,10 +11,16 @@ class FonnteService
 {
     protected string $token;
     protected string $baseUrl = 'https://api.fonnte.com';
+    protected int $minimumReplyInterval;
+    protected int $recipientCooldown;
+    protected int $dailyReplyLimit;
 
     public function __construct()
     {
         $this->token = (string) config('services.fonnte.token');
+        $this->minimumReplyInterval = max(5, (int) config('services.fonnte.minimum_reply_interval_seconds', 10));
+        $this->recipientCooldown = max(5, (int) config('services.fonnte.recipient_cooldown_seconds', 15));
+        $this->dailyReplyLimit = max(0, (int) config('services.fonnte.daily_reply_limit', 60));
     }
 
     /**
@@ -45,31 +51,73 @@ class FonnteService
      */
     protected function queueRequest(string $endpoint, array $data): array
     {
-        $now = now()->timestamp;
-        
-        // Ambil jadwal terakhir, default 10 detik lalu agar pesan pertama langsung dikirim
-        $lastScheduled = Cache::get('fonnte_last_scheduled', $now - 10);
-        
-        // Pesan berikutnya minimal berjarak 10 detik dari jadwal sebelumnya, atau dari sekarang
-        $nextSchedule = max($now, $lastScheduled + 10);
-        $delaySeconds = max(0, $nextSchedule - $now);
+        $target = trim((string) ($data['target'] ?? ''));
+        $message = trim((string) ($data['message'] ?? ''));
 
-        // Update jadwal terakhir ke cache
-        Cache::put('fonnte_last_scheduled', $nextSchedule, now()->addMinutes(10));
+        if ($target === '' || ($message === '' && empty($data['url']))) {
+            Log::warning('Fonnte message not queued: target or content is empty.');
 
-        // Tambahkan timestamp dinamis di akhir pesan agar WA membaca pesan ini unik
-        $sendTime = now()->addSeconds($delaySeconds)->timezone('Asia/Jakarta');
-        $dynamicText = "\n\n_Notifikasi otomatis: " . $sendTime->format('d M Y H:i:s') . " WIB_";
-        
-        if (isset($data['message'])) {
-            $data['message'] .= $dynamicText;
-        } else {
-            $data['message'] = $dynamicText;
+            return ['status' => false, 'reason' => 'empty_target_or_content'];
         }
+
+        if (! $this->hasDailyReplyCapacity($target)) {
+            return ['status' => false, 'reason' => 'daily_reply_limit_reached'];
+        }
+
+        $now = now();
+        $nowTimestamp = $now->timestamp;
+        $globalScheduleKey = 'fonnte:outbound:last-scheduled';
+        $recipientScheduleKey = 'fonnte:outbound:recipient:' . sha1($target);
+
+        $lastGlobalSchedule = (int) Cache::get(
+            $globalScheduleKey,
+            $nowTimestamp - $this->minimumReplyInterval,
+        );
+        $lastRecipientSchedule = (int) Cache::get(
+            $recipientScheduleKey,
+            $nowTimestamp - $this->recipientCooldown,
+        );
+
+        $nextSchedule = max(
+            $nowTimestamp,
+            $lastGlobalSchedule + $this->minimumReplyInterval,
+            $lastRecipientSchedule + $this->recipientCooldown,
+        );
+        $delaySeconds = max(0, $nextSchedule - $nowTimestamp);
+
+        Cache::put($globalScheduleKey, $nextSchedule, $now->copy()->addDay());
+        Cache::put($recipientScheduleKey, $nextSchedule, $now->copy()->addDay());
 
         dispatch(new SendFonnteMessageJob($endpoint, $data))->delay($delaySeconds);
 
         return ['status' => true, 'queued' => true, 'delay' => $delaySeconds];
+    }
+
+    /**
+     * Limit automated replies for one recipient. Messages are only ever
+     * queued in response to an inbound conversation, never for broadcasts.
+     */
+    protected function hasDailyReplyCapacity(string $target): bool
+    {
+        if ($this->dailyReplyLimit === 0) {
+            return true;
+        }
+
+        $key = 'fonnte:outbound:daily:' . now()->format('Y-m-d') . ':' . sha1($target);
+        $count = (int) Cache::get($key, 0);
+
+        if ($count >= $this->dailyReplyLimit) {
+            Log::warning('Fonnte message not queued: daily reply limit reached.', [
+                'target' => $target,
+                'limit' => $this->dailyReplyLimit,
+            ]);
+
+            return false;
+        }
+
+        Cache::put($key, $count + 1, now()->endOfDay());
+
+        return true;
     }
 
     /**
@@ -85,15 +133,23 @@ class FonnteService
      */
     protected function request(string $endpoint, array $data): array
     {
+        if ($this->token === '') {
+            Log::error('Fonnte API request skipped: FONNTE_TOKEN is not configured.', [
+                'target' => $data['target'] ?? null,
+            ]);
+
+            return ['status' => false, 'reason' => 'missing_fonnte_token'];
+        }
+
         try {
-            $response = Http::withoutVerifying()
+            $response = Http::timeout(20)
                 ->withHeaders([
                     'Authorization' => $this->token,
                 ])->post($this->baseUrl . $endpoint, $data);
 
             $result = $response->json() ?? [];
 
-            if (!$response->successful()) {
+            if (! $response->successful() || ! ($result['status'] ?? false)) {
                 Log::warning('Fonnte API error', [
                     'status' => $response->status(),
                     'response' => $result,

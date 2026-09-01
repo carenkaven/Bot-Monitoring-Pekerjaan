@@ -49,6 +49,22 @@ class FonnteWebhookController extends Controller
             return response()->json(['status' => 'ignored', 'reason' => 'empty']);
         }
 
+        // Fonnte can resend the same webhook when a connection is unstable.
+        // Processing it more than once creates duplicate replies and reports.
+        $dedupWindow = max(0, (int) config('services.fonnte.inbound_dedup_seconds', 20));
+        $dedupKey = 'fonnte:inbound:' . sha1($sender . '|' . $message . '|' . $mediaUrl);
+
+        if ($dedupWindow > 0 && Cache::has($dedupKey)) {
+            Log::info('Fonnte webhook ignored: duplicate received.', [
+                'sender' => $sender,
+            ]);
+
+            return response()->json(['status' => 'ignored', 'reason' => 'duplicate']);
+        }
+
+        if ($dedupWindow > 0) {
+            Cache::put($dedupKey, true, now()->addSeconds($dedupWindow));
+        }
 
         Log::info('Fonnte webhook FULL payload', $request->all());
 
